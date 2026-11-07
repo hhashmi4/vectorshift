@@ -1,6 +1,39 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
+const browserStyleFixture = {
+  version: 8,
+  sources: {
+    context: {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: [
+          { type: "Feature", properties: { kind: "water" }, geometry: { type: "Polygon", coordinates: [[[-79.5, 43.5], [-79.3, 43.5], [-79.3, 43.58], [-79.5, 43.58], [-79.5, 43.5]]] } },
+          { type: "Feature", properties: { kind: "park" }, geometry: { type: "Polygon", coordinates: [[[-79.39, 43.645], [-79.385, 43.645], [-79.385, 43.65], [-79.39, 43.65], [-79.39, 43.645]]] } },
+          { type: "Feature", properties: { kind: "road" }, geometry: { type: "LineString", coordinates: [[-79.39, 43.646], [-79.37, 43.651]] } },
+          { type: "Feature", properties: { kind: "building", render_height: 42, render_min_height: 0 }, geometry: { type: "Polygon", coordinates: [[[-79.382, 43.647], [-79.3815, 43.647], [-79.3815, 43.6475], [-79.382, 43.6475], [-79.382, 43.647]]] } },
+        ],
+      },
+    },
+  },
+  layers: [
+    { id: "background", type: "background", paint: { "background-color": "#dfe8eb" } },
+    { id: "water", type: "fill", source: "context", filter: ["==", ["get", "kind"], "water"], paint: { "fill-color": "#90c7d8" } },
+    { id: "park", type: "fill", source: "context", filter: ["==", ["get", "kind"], "park"], paint: { "fill-color": "#9fc7a2" } },
+    { id: "road", type: "line", source: "context", filter: ["==", ["get", "kind"], "road"], paint: { "line-color": "#ffffff", "line-width": 3 } },
+    { id: "building", type: "fill", source: "context", filter: ["==", ["get", "kind"], "building"], paint: { "fill-color": "#aab4ba" } },
+    { id: "building-3d", type: "fill-extrusion", source: "context", filter: ["==", ["get", "kind"], "building"], paint: { "fill-extrusion-color": "#87949c", "fill-extrusion-height": ["get", "render_height"], "fill-extrusion-base": ["get", "render_min_height"], "fill-extrusion-opacity": 0.8 } },
+  ],
+};
+
+const transparentPng = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=", "base64");
+
+test.beforeEach(async ({ page }) => {
+  await page.route("**/__fixtures__/world-style.json", async (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(browserStyleFixture) }));
+  await page.route("**/__fixtures__/terrain/**", async (route) => route.fulfill({ status: 200, contentType: "image/png", body: transparentPng }));
+});
+
 test("loads the actual graph, computes a route, and exposes non-map evidence", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Inspect a legal graph path" })).toBeVisible();
@@ -17,6 +50,64 @@ test("loads the actual graph, computes a route, and exposes non-map evidence", a
   await expect(page.getByTestId("route-result")).toBeVisible({ timeout: 20_000 });
   await expect(page.getByTestId("route-status")).toContainText(/ordered graph edges|configured core buffer/);
   await expect(page.getByText("Synthetic free-flow cost")).toBeVisible();
+});
+
+test("world exploration is independent from prepared graph coverage", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("graph-coverage-status")).toHaveText("Experimental graph");
+
+  await page.getByLabel("Go to").selectOption("welland");
+  await expect(page.getByTestId("graph-coverage-status")).toHaveText("No available graph");
+  await expect(page.getByTestId("coverage-detail")).toContainText("no prepared routing or simulation graph");
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-center-longitude", "-79.2483");
+
+  await page.getByLabel("Go to").selectOption("niagara-falls");
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-center-latitude", "43.0896");
+  await expect(page.getByTestId("graph-coverage-status")).toHaveText("No available graph");
+
+  await page.getByLabel("Go to").selectOption("toronto");
+  await expect(page.getByTestId("graph-coverage-status")).toHaveText("Experimental graph");
+});
+
+test("terrain and camera controls are optional and honor explicit user action", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("route-status")).toContainText("selectable", { timeout: 20_000 });
+  await page.getByRole("button", { name: "Reference pair" }).click();
+  await page.getByRole("button", { name: "Compute route" }).click();
+  await expect(page.getByTestId("route-result")).toBeVisible({ timeout: 20_000 });
+  await page.getByRole("button", { name: "Layers" }).click();
+  await expect(page.getByTestId("terrain-status")).toHaveText("Rights-reviewed source configured");
+  await expect(page.getByTestId("buildings-status")).toHaveText("Provider height data only");
+  await page.getByLabel("3D buildings").uncheck();
+  await page.getByLabel("3D buildings").check();
+  await page.getByLabel("3D terrain").check();
+  await expect(page.getByTestId("terrain-status")).toHaveText("DEM enabled");
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-terrain-state", "enabled");
+  await page.getByRole("button", { name: "Pitch and rotate camera" }).click();
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-pitch", "55.0");
+  await expect(page.getByTestId("route-result")).toBeVisible();
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-overlays-ready", "true");
+  await page.getByLabel("3D terrain").uncheck();
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-terrain-state", "off");
+});
+
+test("style reloads preserve authoritative graph and route overlays", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByTestId("route-status")).toContainText("selectable", { timeout: 20_000 });
+  await page.getByRole("button", { name: "Reference pair" }).click();
+  await page.getByRole("button", { name: "Compute route" }).click();
+  await expect(page.getByTestId("route-result")).toBeVisible({ timeout: 20_000 });
+
+  await page.getByRole("button", { name: "Layers" }).click();
+  await page.getByLabel("Worldwide vector basemap").uncheck();
+  await expect(page.getByTestId("basemap-status")).toHaveText("Graph-only fallback");
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-overlays-ready", "true");
+  await expect(page.getByTestId("route-result")).toBeVisible();
+
+  await page.getByLabel("Worldwide vector basemap").check();
+  await expect(page.getByTestId("basemap-status")).toHaveText("Vector context loaded");
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-overlays-ready", "true");
+  await expect(page.getByTestId("route-result")).toBeVisible();
 });
 
 test("swapping endpoints recalculates the actual reverse query", async ({ page }) => {
@@ -69,6 +160,8 @@ test("a newer algorithm request cancels and supersedes a stale response", async 
 });
 
 test("failed vector style falls back to the authoritative graph-only map", async ({ page }) => {
+  await page.unroute("**/__fixtures__/world-style.json");
+  await page.route("**/__fixtures__/world-style.json", async (route) => route.fulfill({ status: 503, contentType: "text/plain", body: "fixture unavailable" }));
   await page.goto("/");
   await expect(page.getByTestId("route-status")).toContainText(/selectable|graph-only view/, { timeout: 20_000 });
   await page.getByRole("button", { name: "Layers" }).click();

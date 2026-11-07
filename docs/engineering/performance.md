@@ -59,3 +59,15 @@ The machine-readable [API result](../../tools/benchmarks/results/phase1d-web-api
 After ten warmups, 200 sequential alternating Dijkstra/A* API requests all returned `found`: round trip was 4.59 ms median, 6.69 ms p95, and 8.04 ms p99; server compute was 3.70/5.18/6.80 ms. The cold-process network response was 1,288,019 bytes in 483.33 ms. All emitted static JS/CSS chunks totalled 2,092,738 raw bytes and 593,671 bytes when individually gzip-compressed; that is not per-route transfer.
 
 Headless Chrome 156 at 1440×960 measured 30 real UI route interactions after graph readiness: 25.24 ms median, 30.18 ms p95, and 64.75 ms p99. The page recorded 2,016,767 resource-transfer bytes. Used JS heap after explicit GC grew by 3,807,423 bytes across the route workload and 20 scripted pan gestures; this is a directional signal, not renderer/GPU/RSS or leak proof. The Long Tasks observer recorded zero tasks over 50 ms, but headless timing is not an FPS or perceived-smoothness result. A representative-device GPU trace and longer soak remain open.
+
+## Worldwide map foundation browser baseline
+
+The generated [machine-readable result](../../tools/benchmarks/results/worldwide-map-foundation-browser.json) has SHA-256 `ec7e808912768886b170dce46107619a68843bdd323963b5ebaffb74e8efa04a`. It measures the production build with the worldwide development basemap enabled on the same Apple M4/macOS ARM64/Node 24.13.0 class of environment, using headless Chrome 156 at 1440×960 and reduced motion. The exact command was:
+
+```sh
+PLAYWRIGHT_CHROME_PATH="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" npm run benchmark:browser --workspace @vectorshift/web -- --output tools/benchmarks/results/worldwide-map-foundation-browser.json
+```
+
+Across 30 route interactions, median latency was 25.36 ms, p95 was 40.53 ms, and p99/maximum was 68.48 ms. Graph readiness was 901.94 ms. Twenty scripted pan gestures plus the route workload recorded no Long Tasks over 50 ms. Used JavaScript heap after explicit GC increased by 4,824,187 bytes; this is only a directional signal, not renderer, GPU, RSS, or leak evidence. The Resource Timing entries reported 47 resources and 2,019,236 transfer bytes, but cross-origin provider resources can report zero or incomplete transfer sizes without suitable timing headers.
+
+This single headless local run supports continued development against the provisional 100 ms interaction hypothesis; it does not accept the target, establish FPS, measure terrain-enabled rendering, prove mobile performance, or replace physical-device GPU and long-soak testing. Basemap network/cache state and background load were uncontrolled, so the graph-readiness value is not directly comparable to the earlier graph-only baseline.

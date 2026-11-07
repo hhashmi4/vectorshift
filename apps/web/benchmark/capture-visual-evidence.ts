@@ -23,7 +23,7 @@ const desktop = await browser.newPage({ viewport: { width: 1440, height: 960 }, 
 await prepareRoute(desktop);
 await desktop.screenshot({ path: resolve(outputDirectory, "desktop-route.png"), fullPage: false });
 await desktop.getByRole("button", { name: "Layers" }).click();
-await desktop.getByText("Vector basemap").click();
+await desktop.getByLabel("Worldwide vector basemap").uncheck();
 await desktop.waitForTimeout(250);
 await desktop.screenshot({ path: resolve(outputDirectory, "desktop-graph-only.png"), fullPage: false });
 await desktop.close();

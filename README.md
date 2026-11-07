@@ -6,7 +6,7 @@ The defining product concept is **Butterfly Effect Mode**: each result should co
 
 ## Current status
 
-This repository has completed **Phase 1D: reference graph hardening and Visual Experience V1** for qualified local engineering use. It contains the directed-graph foundation, deterministic Dijkstra/A*, independent correctness tests, a source-traceable OSM restriction audit, bounded halo comparison, boundary qualification, and a polished local Next.js/MapLibre inspector that renders actual graph edges and route geometry over an optional development basemap. The halo publication candidate remains explicitly blocked. The repository does not contain a public routing API, simulation engine, traffic predictions, or production-ready legal/navigation service. Conditional, via-way alternative-routing, aggregate vehicle-exception, boundary, cross-machine, and other documented limitations remain explicit.
+This repository has completed **Phase 1D: reference graph hardening and Visual Experience V1** for local engineering use and now includes a worldwide mapping foundation. It contains the directed-graph foundation, deterministic Dijkstra/A*, independent correctness tests, a source-traceable OSM restriction audit, bounded halo comparison, boundary qualification, and a local Next.js/MapLibre workspace. The map can explore worldwide basemap context while routing remains limited to the explicitly labeled experimental downtown Toronto graph. The halo publication candidate remains blocked. The repository does not contain a public routing API, simulation engine, traffic predictions, worldwide graph, or production-ready legal/navigation service.
 
 The original `VECTORSHIFT — Staff Engineering Blueprint, RFC 001, November 6, 2026` PDF is not currently present. [The provisional source-spec summary](docs/architecture/source-spec.md) records the supplied decisions until the PDF is imported and reconciled.
 
@@ -18,6 +18,7 @@ The original `VECTORSHIFT — Staff Engineering Blueprint, RFC 001, November 6, 
 - [Routing correctness contract](docs/architecture/routing.md)
 - [Local routing map architecture](docs/architecture/routing-map.md)
 - [OSM acquisition and licensing](docs/engineering/osm-data-acquisition.md)
+- [Map context, terrain, and provider licensing](docs/engineering/map-data-providers.md)
 - [Concurrency and recovery invariants](docs/architecture/distributed-systems.md)
 - [API contracts](docs/architecture/api-contracts.md)
 - [Open architecture decisions](docs/architecture/open-questions.md)

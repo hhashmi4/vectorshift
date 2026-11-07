@@ -37,3 +37,7 @@ Revisit if range access is unreliable, client memory cannot meet accepted target
 ## Phase 1C implementation evidence
 
 The local routing inspector uses MapLibre GL JS 6.16.0 with an explicit bundled worker URL, actual graph GeoJSON, keyboard-equivalent form controls, reduced-motion behavior, visible OSM attribution, and an optional environment-configured basemap. It deliberately does not introduce PMTiles before a versioned tile asset exists. Browser integration verifies route rendering, non-map evidence, error recovery, and automated WCAG A/AA checks; performance evidence remains limited to API/build measurements.
+
+## Worldwide foundation evidence
+
+The development client now defaults to the worldwide OpenFreeMap Liberty style, while preserving an explicit graph-only mode and failure fallback. Map exploration and graph coverage are separate state: the current Toronto graph is experimental, and other explored regions have no graph. Optional raster DEM terrain and style-supplied building extrusions are visualization-only and require source attribution; neither may influence graph topology or costs. Style reload tests verify that graph, route, and selection overlays are reinstalled. This evidence does not accept OpenFreeMap or the example DEM as a production SLA, and it does not replace the versioned PMTiles publication decision.

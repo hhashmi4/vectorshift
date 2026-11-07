@@ -59,3 +59,9 @@ Reusable `IconButton`, `StatusPill`, and line-icon primitives provide consistent
 The desktop hierarchy is a 48 px command bar, 64 px task rail, primary map, 372 px collapsible inspector, and 28 px disclosure strip. At 720 px and below the task rail becomes a compact map toolbar and the inspector becomes a bounded bottom sheet rather than a compressed desktop column. Essential route evidence remains textual. Reduced-motion mode disables nonessential transitions and uses immediate map fitting.
 
 The vector basemap is contextual rendering only. Authoritative topology, selection points, and ordered route geometry are separate GeoJSON sources and layers. Layer toggles can remove basemap context without affecting routing. If style acquisition fails, the app reinstalls the same overlays on a dark graph-only style and reports that state in the layer control.
+
+## Worldwide exploration foundation
+
+Worldwide map navigation is available independently from computation coverage. The header city control provides keyboard-accessible World, Toronto, Welland, and Niagara Falls presets, while MapLibre supplies pan, zoom, rotation, pitch, compass, and arbitrary exploration. A persistent non-color status reports `Qualified graph`, `Experimental graph`, or `No available graph`; current Toronto coverage is experimental and no current region is qualified.
+
+Terrain is explicit opt-in and building extrusion is available only when the active style already supplies a compatible height layer. Neither surface may imply routing, simulation, flood, or elevation-model support. Reduced-motion mode removes camera interpolation. Layer and style changes must retain route evidence outside the canvas and restore authoritative overlays before declaring the map ready.

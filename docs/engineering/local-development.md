@@ -35,7 +35,7 @@ node tools/data-pipeline/scripts/import-osm.ts
 npm run dev:web
 ```
 
-Open `http://127.0.0.1:3000`. This is the single Phase 1D start command after artifact generation. The server binds loopback and rejects non-loopback hostnames unless explicitly overridden; it is not a public API. Optional basemap configuration and attribution are documented in [`apps/web/.env.example`](../../apps/web/.env.example). Copy only intended values into an ignored `.env.local`; the actual graph renders without external tiles.
+Open `http://127.0.0.1:3000`. This is the single local start command after artifact generation. The server binds loopback and rejects non-loopback hostnames unless explicitly overridden; it is not a public API. Worldwide development basemap, optional terrain, and attribution configuration are documented in [`apps/web/.env.example`](../../apps/web/.env.example) and [map data providers](map-data-providers.md). Copy only intended public values into an ignored `.env.local`; set `NEXT_PUBLIC_BASEMAP_STYLE_URL=off` for graph-only startup. The actual graph renders without external tiles.
 
 Web verification commands are `npm run typecheck:web`, `npm run test:web`, `npm run build:web`, and `npm run test:web:e2e`. Browser tests use a locally installed compatible Chrome when `PLAYWRIGHT_CHROME_PATH` is set; CI does not silently download a browser. With a production server running, `npm run benchmark:web:api`, `npm run benchmark:web:browser`, and `npm run visual:web` produce bounded measurement and ignored screenshot evidence. The browser path must be explicit.
 

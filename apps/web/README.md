@@ -1,6 +1,6 @@
-# Local routing map
+# Worldwide map and local routing workspace
 
-Phase 1C provides a local-only Next.js routing inspector over the immutable downtown Toronto graph. It visualizes actual graph edge geometry and calls the existing graph package on the server; no routing algorithm is duplicated in browser code.
+The local Next.js application provides worldwide geographic exploration and a routing inspector over the immutable downtown Toronto reference graph. It visualizes actual graph edge geometry and calls the existing graph package on the server; no routing algorithm is duplicated in browser code. Worldwide basemap coverage does not imply worldwide routing or simulation coverage.
 
 From the repository root, first reproduce the ignored graph artifacts, then start the application:
 
@@ -11,7 +11,9 @@ npm run dev:web
 
 Open `http://127.0.0.1:3000`. The server refuses non-loopback requests unless `VECTORSHIFT_ALLOW_NONLOCAL=1` is explicitly set; Phase 1C is not a public API.
 
-Configuration is documented in [`.env.example`](.env.example). `NEXT_PUBLIC_BASEMAP_STYLE_URL` is optional. Without it the application uses a blank MapLibre style and still renders the actual road graph. Any configured provider must permit the intended use and must receive its required attribution; public tile services must not be treated as unlimited. Never place a secret credential in a `NEXT_PUBLIC_*` value.
+OpenFreeMap Liberty is the keyless worldwide development default. Configuration is documented in [`.env.example`](.env.example): set `NEXT_PUBLIC_BASEMAP_STYLE_URL=off` for graph-only startup or provide a reviewed vector style override. Terrain is disabled unless a rights-reviewed raster DEM URL and attribution are configured. Any provider must permit the intended use and receive its required attribution; public services must not be treated as an unlimited production SLA. Never place a secret credential in a `NEXT_PUBLIC_*` value. See [map data providers](../../docs/engineering/map-data-providers.md).
+
+The city control moves the camera to World, Toronto, Welland, or Niagara Falls. Toronto is labeled `Experimental graph`; the other presets are currently `No available graph`. A future region may be labeled `Qualified graph` only from accepted publication evidence. Rotation, pitch, optional terrain, and provider-supplied building extrusions are rendering state and cannot alter graph connectivity.
 
 The graph and routing-support sidecar come from the pinned OSM source manifest and are generated into ignored `data/derived/` files. The server checks both publication digests before constructing the routing index; custom artifact paths require matching digest configuration. Road data remains © OpenStreetMap contributors under ODbL. Traversal costs are deterministic synthetic free-flow weights, not observed traffic or traffic predictions.
 

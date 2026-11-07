@@ -1,6 +1,6 @@
-# Phase 1D local routing map architecture
+# Worldwide map and local routing architecture
 
-**Status:** Implemented for local engineering validation with Visual Experience V1; not a public API, navigation product, or production map service
+**Status:** Worldwide exploration foundation and local engineering routing validation; not a public API, navigation product, or production map service
 
 ## Boundary and ownership
 
@@ -50,6 +50,16 @@ The UI uses charcoal/slate surfaces, one blue interaction accent, amber/red only
 Phase 1D adds an optional OpenFreeMap Liberty development style, whose street labels, road hierarchy, buildings, water, parks, and land-use provide context. `NEXT_PUBLIC_BASEMAP_STYLE_URL` and explicit attribution configure the provider. OpenFreeMap is an as-is public service whose terms may change; its October 14, 2026 terms permit ordinary integration but specify bounds for offline download. It is a development candidate, not an accepted production tile SLA. A self-hosted/versioned PMTiles delivery review remains required before public launch.
 
 Map style lifecycle is independent from graph lifecycle. Style and map load events reinstall versioned overlay sources; provider failure switches to the blank style. The graph, route, and selection sources survive conceptually through this reinstall and never derive connectivity from basemap geometry.
+
+## Worldwide exploration and 3D
+
+OpenFreeMap Liberty is the keyless development default, so a fresh local session can pan, zoom, rotate, and pitch across worldwide context. The city navigator provides deterministic camera presets for World, Toronto, Welland, and Niagara Falls; arbitrary navigation remains available through normal MapLibre controls. `NEXT_PUBLIC_BASEMAP_STYLE_URL=off` and provider failures both preserve the dark graph-only style.
+
+Graph coverage is classified from a small explicit view registry, not from what the basemap happens to draw. The downtown Toronto bounds are `experimental` because their publication manifest is blocked. Welland, Niagara Falls, and all unregistered locations are `none`. The type model reserves `qualified`, but no region currently receives it. Clicking outside prepared graph coverage produces an explanation rather than a fabricated snap or route.
+
+Terrain is an opt-in `raster-dem` visualization. Its source URL and attribution are public build configuration, and the source is reinstalled after every style load when the user has enabled it. It does not affect route weights or graph geometry. The building control only changes visibility of style-supplied `fill-extrusion` layers; a style without compatible height data reports the feature unavailable. Camera transitions use immediate jumps under reduced-motion preference.
+
+Style replacement is an explicit tested lifecycle: retained graph, ordered-route, and selection view models are re-added after vector-to-blank, blank-to-vector, and failure-fallback transitions. Basemap, terrain, camera, and building state never mutate `packages/graph` or the local route service.
 
 ## Client concurrency and interaction invariants
 

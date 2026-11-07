@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "VECTORSHIFT · Routing instrument",
-  description: "Inspectable deterministic routing over the bounded Toronto reference graph.",
+  title: "VECTORSHIFT · Geospatial routing instrument",
+  description: "Worldwide map exploration with explicitly qualified local VECTORSHIFT graph coverage.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

@@ -5,13 +5,20 @@ import * as maplibregl from "maplibre-gl";
 import type { GeoJSONSource, Map as MapLibreMap, MapMouseEvent, StyleSpecification } from "maplibre-gl";
 import type { Feature, FeatureCollection, LineString, Point } from "geojson";
 import type { NetworkView, RouteRequestView, RouteResponseView, WebRoutingAlgorithm, WebTravelMode } from "@/lib/contracts.ts";
+import { CITY_PRESETS, cityPreset, graphCoverageAt, type CityPreset, type GraphCoverage } from "@/lib/map-foundation.ts";
 import { snapToEligibleEndpoint } from "@/lib/snapping.ts";
 import { IconButton, StatusPill, ToolIcon } from "@/components/ui/primitives.tsx";
 
 maplibregl.setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).toString());
 
 const GRAPH_CENTER: [number, number] = [-79.3805, 43.6482];
-const BASEMAP_STYLE_URL = process.env.NEXT_PUBLIC_BASEMAP_STYLE_URL?.trim() ?? "";
+const DEFAULT_BASEMAP_STYLE_URL = "https://tiles.openfreemap.org/styles/liberty";
+const configuredBasemap = process.env.NEXT_PUBLIC_BASEMAP_STYLE_URL?.trim();
+const BASEMAP_STYLE_URL = configuredBasemap?.toLowerCase() === "off" ? "" : configuredBasemap || DEFAULT_BASEMAP_STYLE_URL;
+const BASEMAP_ATTRIBUTION = process.env.NEXT_PUBLIC_BASEMAP_ATTRIBUTION?.trim() || "OpenFreeMap © OpenMapTiles · Data © OpenStreetMap contributors";
+const TERRAIN_TILES_URL = process.env.NEXT_PUBLIC_TERRAIN_TILES_URL?.trim() ?? "";
+const TERRAIN_ATTRIBUTION = process.env.NEXT_PUBLIC_TERRAIN_ATTRIBUTION?.trim() || "Terrain data © contributing providers; see Tilezen/Mapzen attribution details";
+const TERRAIN_SOURCE_ID = "vectorshift-terrain-dem";
 const EMPTY_STYLE: StyleSpecification = { version: 8, sources: {}, layers: [{ id: "vectorshift-background", type: "background", paint: { "background-color": "#0d141a" } }] };
 const EMPTY_LINES: FeatureCollection<LineString> = { type: "FeatureCollection", features: [] };
 const EMPTY_POINTS: FeatureCollection<Point> = { type: "FeatureCollection", features: [] };
@@ -38,7 +45,10 @@ export function RoutingWorkspace() {
   const networkGeneration = useRef(0);
   const pendingModeRoute = useRef(false);
   const basemapFallbackApplied = useRef(false);
-  const basemapLayers = useRef<string[]>([]);
+  const buildingLayers = useRef<string[]>([]);
+  const terrainEnabledRef = useRef(false);
+  const buildingsVisibleRef = useRef(true);
+  const basemapEnabledRef = useRef(Boolean(BASEMAP_STYLE_URL));
   const hoveredFeature = useRef<string | number | null>(null);
   const installLayersRef = useRef<() => void>(() => undefined);
   const mapClickRef = useRef<(event: MapMouseEvent) => void>(() => undefined);
@@ -57,10 +67,21 @@ export function RoutingWorkspace() {
   const [layersOpen, setLayersOpen] = useState(false);
   const [networkVisible, setNetworkVisible] = useState(true);
   const [routeVisible, setRouteVisible] = useState(true);
-  const [basemapVisible, setBasemapVisible] = useState(true);
+  const [basemapEnabled, setBasemapEnabled] = useState(Boolean(BASEMAP_STYLE_URL));
   const [basemapState, setBasemapState] = useState<"loading" | "available" | "fallback">(BASEMAP_STYLE_URL ? "loading" : "fallback");
+  const [terrainEnabled, setTerrainEnabled] = useState(false);
+  const [terrainState, setTerrainState] = useState<"unavailable" | "off" | "enabled" | "error">(TERRAIN_TILES_URL ? "off" : "unavailable");
+  const [buildingsVisible, setBuildingsVisible] = useState(true);
+  const [buildingsAvailable, setBuildingsAvailable] = useState(false);
+  const [overlayGeneration, setOverlayGeneration] = useState(0);
+  const [activePreset, setActivePreset] = useState<CityPreset["id"] | "custom">("toronto");
+  const [viewPosition, setViewPosition] = useState({ longitude: GRAPH_CENTER[0], latitude: GRAPH_CENTER[1], bearing: 0, pitch: 0 });
+  const [coverage, setCoverage] = useState<GraphCoverage>(() => graphCoverageAt(GRAPH_CENTER[0], GRAPH_CENTER[1]));
   const [hoveredEdge, setHoveredEdge] = useState<string | null>(null);
   inputRef.current = { start, destination, mode, algorithm };
+  terrainEnabledRef.current = terrainEnabled;
+  buildingsVisibleRef.current = buildingsVisible;
+  basemapEnabledRef.current = basemapEnabled;
 
   const updateSelection = useCallback((nextStart: string, nextDestination: string) => {
     const byId = new Map(endpointsRef.current.map((endpoint) => [endpoint.id, endpoint] as const));
@@ -97,7 +118,34 @@ export function RoutingWorkspace() {
     if (!map) return;
     const currentStyle = map.getStyle();
     if (!currentStyle) return;
-    basemapLayers.current = (currentStyle.layers ?? []).map((layer) => layer.id).filter((id) => !CUSTOM_LAYERS.has(id) && id !== "vectorshift-background");
+    const styleLayers = currentStyle.layers ?? [];
+    buildingLayers.current = styleLayers
+      .filter((layer) => layer.type === "fill-extrusion" && !CUSTOM_LAYERS.has(layer.id) && (layer.id.toLowerCase().includes("building") || layer["source-layer"] === "building"))
+      .map((layer) => layer.id);
+    setBuildingsAvailable(buildingLayers.current.length > 0);
+    for (const id of buildingLayers.current) map.setLayoutProperty(id, "visibility", buildingsVisibleRef.current ? "visible" : "none");
+
+    if (terrainEnabledRef.current && TERRAIN_TILES_URL) {
+      try {
+        if (!map.getSource(TERRAIN_SOURCE_ID)) {
+          map.addSource(TERRAIN_SOURCE_ID, {
+            type: "raster-dem",
+            tiles: [TERRAIN_TILES_URL],
+            tileSize: 256,
+            maxzoom: 15,
+            encoding: "terrarium",
+            attribution: TERRAIN_ATTRIBUTION,
+          });
+        }
+        map.setTerrain({ source: TERRAIN_SOURCE_ID, exaggeration: 1 });
+        setTerrainState("enabled");
+      } catch {
+        terrainEnabledRef.current = false;
+        setTerrainEnabled(false);
+        setTerrainState("error");
+      }
+    }
+
     if (!map.getSource("network")) {
       map.addSource("network", { type: "geojson", data: networkRef.current?.network ?? EMPTY_LINES, generateId: true });
       map.addLayer({ id: "network-hit", type: "line", source: "network", paint: { "line-color": "#fff", "line-width": 12, "line-opacity": 0.01 } });
@@ -114,24 +162,51 @@ export function RoutingWorkspace() {
     updateSelection(inputRef.current.start, inputRef.current.destination);
     for (const id of ["network-hit", "network-casing", "network-lines"]) map.setLayoutProperty(id, "visibility", networkVisible ? "visible" : "none");
     for (const id of ["route-casing", "route-line"]) map.setLayoutProperty(id, "visibility", routeVisible ? "visible" : "none");
-    for (const id of basemapLayers.current) map.setLayoutProperty(id, "visibility", basemapVisible ? "visible" : "none");
-  }, [basemapVisible, networkVisible, routeVisible, updateSelection]);
+    setOverlayGeneration((value) => value + 1);
+  }, [networkVisible, routeVisible, updateSelection]);
   installLayersRef.current = installLayers;
 
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
-    const map = new maplibregl.Map({ container: mapContainer.current, style: BASEMAP_STYLE_URL || EMPTY_STYLE, center: GRAPH_CENTER, zoom: 14.1, attributionControl: false, maxPitch: 0 });
+    const map = new maplibregl.Map({ container: mapContainer.current, style: BASEMAP_STYLE_URL || EMPTY_STYLE, center: GRAPH_CENTER, zoom: 14.1, attributionControl: false, maxPitch: 75 });
     mapRef.current = map;
-    map.addControl(new maplibregl.NavigationControl({ visualizePitch: false, showCompass: false }), "top-right");
+    map.addControl(new maplibregl.NavigationControl({ visualizePitch: true, showCompass: true }), "top-right");
     map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: "Road graph © OpenStreetMap contributors" }));
-    map.getCanvas().setAttribute("aria-label", "Interactive downtown Toronto road graph. Use the route inspector for a keyboard-accessible equivalent workflow.");
-    map.on("style.load", () => { hoveredFeature.current = null; setBasemapState(BASEMAP_STYLE_URL && !basemapFallbackApplied.current ? "available" : "fallback"); installLayersRef.current(); });
+    map.getCanvas().setAttribute("aria-label", "Worldwide interactive map with separately qualified VECTORSHIFT graph coverage. Use the city control and route inspector for keyboard-accessible workflows.");
+    map.on("style.load", () => {
+      hoveredFeature.current = null;
+      setBasemapState(basemapEnabledRef.current && BASEMAP_STYLE_URL && !basemapFallbackApplied.current ? "available" : "fallback");
+      installLayersRef.current();
+    });
     map.on("load", () => installLayersRef.current());
-    map.on("error", () => {
-      if (!BASEMAP_STYLE_URL || basemapFallbackApplied.current || map.isStyleLoaded()) return;
+    map.on("error", (event) => {
+      const sourceId = "sourceId" in event && typeof event.sourceId === "string" ? event.sourceId : null;
+      if (sourceId === TERRAIN_SOURCE_ID) {
+        terrainEnabledRef.current = false;
+        setTerrainEnabled(false);
+        setTerrainState("error");
+        map.setTerrain(null);
+        return;
+      }
+      if (!BASEMAP_STYLE_URL || !basemapEnabledRef.current || basemapFallbackApplied.current || map.isStyleLoaded()) return;
       basemapFallbackApplied.current = true;
+      basemapEnabledRef.current = false;
+      setBasemapEnabled(false);
       setBasemapState("fallback");
+      setOverlayGeneration(0);
+      if (terrainEnabledRef.current) {
+        terrainEnabledRef.current = false;
+        setTerrainEnabled(false);
+        setTerrainState(TERRAIN_TILES_URL ? "off" : "unavailable");
+      }
       map.setStyle(EMPTY_STYLE, { diff: false });
+    });
+    map.on("moveend", () => {
+      const center = map.getCenter();
+      setViewPosition({ longitude: center.lng, latitude: center.lat, bearing: map.getBearing(), pitch: map.getPitch() });
+      setCoverage(graphCoverageAt(center.lng, center.lat));
+      const matchingPreset = CITY_PRESETS.find((preset) => Math.abs(preset.center[0] - center.lng) < 0.005 && Math.abs(preset.center[1] - center.lat) < 0.005);
+      setActivePreset(matchingPreset?.id ?? "custom");
     });
     map.on("click", (event) => mapClickRef.current(event));
     map.on("mousemove", (event) => {
@@ -184,6 +259,11 @@ export function RoutingWorkspace() {
   executeRouteRef.current = executeRoute;
 
   mapClickRef.current = (event) => {
+    const clickedCoverage = graphCoverageAt(event.lngLat.lng, event.lngLat.lat);
+    if (clickedCoverage.status === "none") {
+      setMessage("Map exploration is available here, but no prepared VECTORSHIFT graph can accept routing endpoints in this region.");
+      return;
+    }
     const snapped = snapToEligibleEndpoint(endpointsRef.current, event.lngLat.lng, event.lngLat.lat);
     if (!snapped) { setMessage("No routing-eligible node is within 150 metres of that point."); return; }
     clearRoute();
@@ -217,7 +297,65 @@ export function RoutingWorkspace() {
 
   useEffect(() => { const map = mapRef.current; if (map?.isStyleLoaded()) for (const id of ["network-hit", "network-casing", "network-lines"]) if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", networkVisible ? "visible" : "none"); }, [networkVisible]);
   useEffect(() => { const map = mapRef.current; if (map?.isStyleLoaded()) for (const id of ["route-casing", "route-line"]) if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", routeVisible ? "visible" : "none"); }, [routeVisible]);
-  useEffect(() => { const map = mapRef.current; if (map?.isStyleLoaded()) for (const id of basemapLayers.current) if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", basemapVisible ? "visible" : "none"); }, [basemapVisible]);
+
+  const changeBasemap = (enabled: boolean) => {
+    const map = mapRef.current;
+    if (!map || (enabled && !BASEMAP_STYLE_URL)) return;
+    basemapEnabledRef.current = enabled;
+    basemapFallbackApplied.current = false;
+    setBasemapEnabled(enabled);
+    setBasemapState(enabled ? "loading" : "fallback");
+    setBuildingsAvailable(false);
+    setOverlayGeneration(0);
+    if (!enabled && terrainEnabledRef.current) {
+      terrainEnabledRef.current = false;
+      setTerrainEnabled(false);
+      setTerrainState(TERRAIN_TILES_URL ? "off" : "unavailable");
+    }
+    map.setStyle(enabled ? BASEMAP_STYLE_URL : EMPTY_STYLE, { diff: false });
+  };
+
+  const changeTerrain = (enabled: boolean) => {
+    const map = mapRef.current;
+    if (!map || !TERRAIN_TILES_URL) return;
+    terrainEnabledRef.current = enabled;
+    setTerrainEnabled(enabled);
+    if (enabled) {
+      setTerrainState("off");
+      if (map.getStyle()) installLayersRef.current();
+      return;
+    }
+    map.setTerrain(null);
+    if (map.getSource(TERRAIN_SOURCE_ID)) map.removeSource(TERRAIN_SOURCE_ID);
+    setTerrainState("off");
+  };
+
+  const changeBuildings = (visible: boolean) => {
+    buildingsVisibleRef.current = visible;
+    setBuildingsVisible(visible);
+    const map = mapRef.current;
+    if (!map?.isStyleLoaded()) return;
+    for (const id of buildingLayers.current) if (map.getLayer(id)) map.setLayoutProperty(id, "visibility", visible ? "visible" : "none");
+  };
+
+  const navigateTo = (id: CityPreset["id"]) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const preset = cityPreset(id);
+    setActivePreset(id);
+    const camera = { center: [...preset.center] as [number, number], zoom: preset.zoom, pitch: 0, bearing: 0 };
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) map.jumpTo(camera);
+    else map.easeTo({ ...camera, duration: 850, essential: false });
+  };
+
+  const togglePerspective = () => {
+    const map = mapRef.current;
+    if (!map) return;
+    const enabled = map.getPitch() < 10;
+    const camera = { pitch: enabled ? 55 : 0, bearing: enabled ? -18 : 0 };
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) map.jumpTo(camera);
+    else map.easeTo({ ...camera, duration: 600, essential: false });
+  };
 
   const useSuggested = () => {
     const pair = network?.suggested_pair; if (!pair) return;
@@ -239,8 +377,9 @@ export function RoutingWorkspace() {
     <main className={`workspace ${inspectorOpen ? "" : "inspector-closed"}`}>
       <header className="topbar">
         <div className="identity"><span className="identity-glyph" aria-hidden="true">VS</span><span className="brand-mark">VECTORSHIFT</span></div>
-        <div className="workspace-crumb"><span>Toronto reference</span><span className="crumb-separator">/</span><strong>Routing lab</strong></div>
-        <div className="top-meta"><StatusPill tone="positive">Local</StatusPill><span className="dataset-chip mono" title={network?.graph.graph_sha256}>{network?.graph.dataset_version ?? "graph loading"}</span><IconButton label="Fit computed route" onClick={fitRoute} disabled={route?.status !== "found"}><ToolIcon name="fit" /></IconButton><IconButton label={inspectorOpen ? "Close route inspector" : "Open route inspector"} onClick={() => setInspectorOpen((value) => !value)}><ToolIcon name="panel" /></IconButton></div>
+        <div className="workspace-crumb"><span>Worldwide map</span><span className="crumb-separator">/</span><strong>Routing lab</strong></div>
+        <div className="city-control"><label htmlFor="city-preset">Go to</label><select id="city-preset" value={activePreset} onChange={(event) => { if (event.target.value !== "custom") navigateTo(event.target.value as CityPreset["id"]); }}><option value="custom" disabled>Custom view</option>{CITY_PRESETS.map((preset) => <option key={preset.id} value={preset.id}>{preset.label}</option>)}</select></div>
+        <div className="top-meta"><StatusPill tone={coverage.status === "qualified" ? "positive" : coverage.status === "experimental" ? "warning" : "neutral"}><span data-testid="graph-coverage-status">{coverage.label}</span></StatusPill><span className="dataset-chip mono" title={network?.graph.graph_sha256}>{network?.graph.dataset_version ?? "graph loading"}</span><IconButton label="Fit computed route" onClick={fitRoute} disabled={route?.status !== "found"}><ToolIcon name="fit" /></IconButton><IconButton label={inspectorOpen ? "Close route inspector" : "Open route inspector"} onClick={() => setInspectorOpen((value) => !value)}><ToolIcon name="panel" /></IconButton></div>
       </header>
 
       <nav className="rail" aria-label="Workspace sections">
@@ -251,13 +390,17 @@ export function RoutingWorkspace() {
       </nav>
 
       <section className="map-region" aria-label="Road graph map">
-        <div ref={mapContainer} className="map" data-testid="routing-map" data-map-ready={networkState === "ready"} />
-        <div className="map-context"><span className="map-kicker">43.6482° N · 79.3805° W</span><strong>Downtown Toronto</strong><span>{selectionRole.current === "start" ? "Choose start" : "Choose destination"}</span></div>
+        <div ref={mapContainer} className="map" data-testid="routing-map" data-map-ready={networkState === "ready"} data-overlays-ready={overlayGeneration > 0} data-terrain-state={terrainState} data-coverage={coverage.status} data-center-longitude={viewPosition.longitude.toFixed(4)} data-center-latitude={viewPosition.latitude.toFixed(4)} data-pitch={viewPosition.pitch.toFixed(1)} data-bearing={viewPosition.bearing.toFixed(1)} />
+        <div className="map-context"><span className="map-kicker">{Math.abs(viewPosition.latitude).toFixed(4)}° {viewPosition.latitude >= 0 ? "N" : "S"} · {Math.abs(viewPosition.longitude).toFixed(4)}° {viewPosition.longitude >= 0 ? "E" : "W"}</span><strong>{coverage.region}</strong><span>{selectionRole.current === "start" ? "Choose start" : "Choose destination"}</span></div>
+        <div className={`coverage-notice coverage-${coverage.status}`} role="status" aria-live="polite" data-testid="coverage-detail"><strong>{coverage.label}</strong><span>{coverage.message}</span></div>
         <button type="button" className="layers-trigger" aria-expanded={layersOpen} onClick={() => setLayersOpen((value) => !value)}><ToolIcon name="layers" /> Layers</button>
-        {layersOpen && <div className="layer-menu" aria-label="Map layer visibility"><div className="layer-menu-heading"><strong>Map layers</strong><span>Rendering only</span></div>
-          <label><input type="checkbox" checked={basemapVisible} disabled={basemapState === "fallback"} onChange={(event) => setBasemapVisible(event.target.checked)} /><span>Vector basemap<small data-testid="basemap-status">{basemapState === "available" ? "Development tiles" : basemapState === "loading" ? "Connecting…" : "Graph-only fallback"}</small></span></label>
+        {layersOpen && <div className="layer-menu" aria-label="Map layer visibility"><div className="layer-menu-heading"><strong>Map layers</strong><span>Context ≠ topology</span></div>
+          <label><input type="checkbox" checked={basemapEnabled} disabled={!BASEMAP_STYLE_URL} onChange={(event) => changeBasemap(event.target.checked)} /><span>Worldwide vector basemap<small data-testid="basemap-status">{basemapState === "available" ? "Vector context loaded" : basemapState === "loading" ? "Connecting…" : "Graph-only fallback"}</small></span></label>
+          <label><input type="checkbox" checked={terrainEnabled} disabled={!TERRAIN_TILES_URL} onChange={(event) => changeTerrain(event.target.checked)} /><span>3D terrain<small data-testid="terrain-status">{terrainState === "enabled" ? "DEM enabled" : terrainState === "off" ? "Rights-reviewed source configured" : terrainState === "error" ? "DEM unavailable" : "Configure a licensed DEM"}</small></span></label>
+          <label><input type="checkbox" checked={buildingsAvailable && buildingsVisible} disabled={!buildingsAvailable} onChange={(event) => changeBuildings(event.target.checked)} /><span>3D buildings<small data-testid="buildings-status">{buildingsAvailable ? "Provider height data only" : "No compatible extrusion layer"}</small></span></label>
           <label><input type="checkbox" checked={networkVisible} onChange={(event) => setNetworkVisible(event.target.checked)} /><span>Routing topology<small>Authoritative graph</small></span></label>
-          <label><input type="checkbox" checked={routeVisible} onChange={(event) => setRouteVisible(event.target.checked)} /><span>Computed route<small>Ordered edge geometry</small></span></label></div>}
+          <label><input type="checkbox" checked={routeVisible} onChange={(event) => setRouteVisible(event.target.checked)} /><span>Computed route<small>Ordered edge geometry</small></span></label>
+          <button type="button" className="layer-action" onClick={togglePerspective}>{viewPosition.pitch >= 10 ? "Reset overhead camera" : "Pitch and rotate camera"}</button></div>}
         <div className="map-legend" aria-label="Map legend"><div><span className="line-key network" />Directed road graph</div><div><span className="line-key route" />Computed route</div><div><span className="point-key start" />Start</div><div><span className="point-key destination" />Destination</div></div>
         {hoveredEdge && <div className="hover-readout"><span>Graph edge</span><code>{hoveredEdge}</code></div>}
       </section>
@@ -282,7 +425,7 @@ export function RoutingWorkspace() {
         <section className="panel graph-summary"><details><summary>Graph metadata</summary>{network && <dl className="metadata-list"><div><dt>Nodes</dt><dd>{network.graph.node_count.toLocaleString()}</dd></div><div><dt>Directed edges</dt><dd>{network.graph.edge_count.toLocaleString()}</dd></div><div><dt>Turn rules</dt><dd>{network.graph.turn_rule_count.toLocaleString()}</dd></div><div><dt>Selectable core nodes</dt><dd>{network.endpoints.length.toLocaleString()}</dd></div><div><dt>SHA-256</dt><dd className="mono">{network.graph.graph_sha256}</dd></div></dl>}</details></section>
       </aside>
 
-      <footer className="footer"><span className="disclosure"><strong>Synthetic free-flow cost</strong> Not observed traffic, navigation advice, or a prediction.</span><span className="footer-attribution">{network?.attribution ?? "Road graph © OpenStreetMap contributors"} · {BASEMAP_STYLE_URL ? (process.env.NEXT_PUBLIC_BASEMAP_ATTRIBUTION ?? "Basemap attribution required") : "graph-only fallback"}</span></footer>
+      <footer className="footer"><span className="disclosure"><strong>Synthetic free-flow cost</strong> Not observed traffic, navigation advice, or a prediction.</span><span className="footer-attribution">{network?.attribution ?? "Road graph © OpenStreetMap contributors"} · {basemapState === "available" ? BASEMAP_ATTRIBUTION : "graph-only fallback"}{terrainEnabled ? " · Terrain attribution in map credits" : ""}</span></footer>
     </main>
   );
 }

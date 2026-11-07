@@ -21,8 +21,10 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 60_000,
     env: {
-      NEXT_PUBLIC_BASEMAP_STYLE_URL: "http://127.0.0.1:3000/__missing-basemap-style.json",
-      NEXT_PUBLIC_BASEMAP_ATTRIBUTION: "Basemap failure fixture",
+      NEXT_PUBLIC_BASEMAP_STYLE_URL: "http://127.0.0.1:3000/__fixtures__/world-style.json",
+      NEXT_PUBLIC_BASEMAP_ATTRIBUTION: "Hermetic browser-test basemap",
+      NEXT_PUBLIC_TERRAIN_TILES_URL: "http://127.0.0.1:3000/__fixtures__/terrain/{z}/{x}/{y}.png",
+      NEXT_PUBLIC_TERRAIN_ATTRIBUTION: "Hermetic browser-test DEM",
     },
   },
 });
