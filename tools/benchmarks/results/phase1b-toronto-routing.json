@@ -1,0 +1,162 @@
+{
+  "benchmark_version": 1,
+  "generated_at": "2026-11-06T20:51:34.792Z",
+  "question": "What are reference Dijkstra and restriction-equivalent A* latency, search-work, and memory baselines on the pinned Toronto Phase 1B graph?",
+  "command": "npm run benchmark:routing",
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v24.13.0",
+    "cpu_model": "Apple M4",
+    "logical_cpu_count": 10,
+    "total_memory_bytes": 17179869184,
+    "power_mode": "not recorded",
+    "source_commit": "unavailable: repository has no commits",
+    "graph_implementation_sha256": "62b1fa4a0346e4e3cf4d258f7861871bfd3bf5d024eb48116d6f70a1dad2483a"
+  },
+  "workload": {
+    "dataset_id": "toronto-downtown-road-graph",
+    "dataset_version": "osm-2026-11-05-pipeline2",
+    "graph_sha256": "c683b69428688f92e6729803b20e61b6c6305da756852c4c10dccb08966ad23f",
+    "serialized_bytes": 9129331,
+    "node_count": 7863,
+    "directed_edge_count": 19997,
+    "turn_rule_count": 67,
+    "mode": "motor_vehicle",
+    "endpoint_component": "largest motor-vehicle strongly connected component",
+    "endpoint_component_node_count": 1830,
+    "query_seed": "0x51f15e1d",
+    "warmup_query_count_per_algorithm": 50,
+    "measured_query_count_per_algorithm": 500,
+    "cold_sample_count": 20
+  },
+  "correctness": {
+    "dijkstra_astar_status_and_cost_agreement_count": 500,
+    "all_queries_agreed": true
+  },
+  "timing_milliseconds": {
+    "initial_index_construction": 113.63904199999996,
+    "warm_dijkstra": {
+      "samples": 500,
+      "min": 0.014750000000049113,
+      "median": 1.2654579999998532,
+      "p95": 2.510250000000042,
+      "p99": 2.660041000000092,
+      "max": 2.7835420000000113,
+      "mean": 1.2951025979999984
+    },
+    "warm_astar": {
+      "samples": 500,
+      "min": 0.012291999999888503,
+      "median": 0.7847920000000386,
+      "p95": 2.2711249999999836,
+      "p99": 2.6692920000000413,
+      "max": 2.8964589999998225,
+      "mean": 0.9414996760000013
+    },
+    "cold_index_construction": {
+      "samples": 20,
+      "min": 100.90895799999998,
+      "median": 102.12045799999987,
+      "p95": 103.18399999999974,
+      "p99": 103.80604200000016,
+      "max": 103.80604200000016,
+      "mean": 102.27409994999996
+    },
+    "cold_first_dijkstra_query": {
+      "samples": 20,
+      "min": 0.4515830000000278,
+      "median": 1.9735000000000582,
+      "p95": 4.779166999999688,
+      "p99": 5.189334000000144,
+      "max": 5.189334000000144,
+      "mean": 2.2738708999999746
+    },
+    "cold_first_astar_query_after_dijkstra": {
+      "samples": 20,
+      "min": 0.9903330000001915,
+      "median": 1.7127080000000205,
+      "p95": 3.8311659999999392,
+      "p99": 4.170375000000149,
+      "max": 4.170375000000149,
+      "mean": 2.16333965
+    }
+  },
+  "search_work": {
+    "dijkstra_states_expanded": {
+      "samples": 500,
+      "min": 3,
+      "median": 1632,
+      "p95": 3252,
+      "p99": 3412,
+      "max": 3469,
+      "mean": 1650.448
+    },
+    "astar_states_expanded": {
+      "samples": 500,
+      "min": 2,
+      "median": 903,
+      "p95": 2654,
+      "p99": 3088,
+      "max": 3297,
+      "mean": 1098.452
+    },
+    "dijkstra_queue_pushes": {
+      "samples": 500,
+      "min": 6,
+      "median": 1714,
+      "p95": 3289,
+      "p99": 3424,
+      "max": 3476,
+      "mean": 1707.86
+    },
+    "astar_queue_pushes": {
+      "samples": 500,
+      "min": 4,
+      "median": 964,
+      "p95": 2715,
+      "p99": 3136,
+      "max": 3338,
+      "mean": 1155.174
+    },
+    "dijkstra_queue_pops": {
+      "samples": 500,
+      "min": 3,
+      "median": 1632,
+      "p95": 3252,
+      "p99": 3412,
+      "max": 3469,
+      "mean": 1650.448
+    },
+    "astar_queue_pops": {
+      "samples": 500,
+      "min": 2,
+      "median": 903,
+      "p95": 2654,
+      "p99": 3088,
+      "max": 3297,
+      "mean": 1098.452
+    }
+  },
+  "memory_bytes": {
+    "before_index_heap_used": 27148640,
+    "after_index_heap_used": 38583328,
+    "retained_index_heap_delta": 11434688,
+    "before_index_rss": 356106240,
+    "after_index_rss": 358580224,
+    "retained_index_rss_delta": 2473984,
+    "after_queries_heap_used": 50197400,
+    "after_queries_rss": 392822784,
+    "sampled_peak_heap_used": 149747056,
+    "sampled_peak_rss": 407126016,
+    "note": "Retained deltas use forced GC when exposed; sampled peaks are not allocator-independent process maxima."
+  },
+  "limitations": [
+    "This bounded downtown extract is not evidence of city-scale performance.",
+    "One MacBook, one Node build, and one run; results are a regression baseline rather than an SLO.",
+    "The power mode and background system load were not controlled.",
+    "Endpoints come from one strongly connected motor-vehicle component and do not represent a production demand distribution.",
+    "Cold A* is measured after Dijkstra on the same new index; its first use includes lazy heuristic-bound construction.",
+    "RSS and heap measurements include the deserialized graph and V8 allocator behavior."
+  ]
+}

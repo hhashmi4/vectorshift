@@ -1,0 +1,40 @@
+{
+  "plan_version": 1,
+  "area_id": "toronto-downtown-halo-500m-v1",
+  "endpoint": "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "snapshot_at": "2026-11-05T00:00:00Z",
+  "bounds": {
+    "south": 43.638108,
+    "west": -79.39671,
+    "north": 43.658292,
+    "east": -79.36429
+  },
+  "query_timeout_seconds": 90,
+  "client_timeout_ms": 120000,
+  "maximum_partition_bytes": 2097152,
+  "maximum_total_bytes": 33554432,
+  "raw_directory": "data/raw/toronto-downtown-halo-500m-2026-11-05-parts",
+  "merged_path": "data/raw/toronto-downtown-halo-500m-2026-11-05.overpass.json",
+  "pipeline_version": "osm-road-graph/3",
+  "license": "ODbL-1.0",
+  "attribution": "© OpenStreetMap contributors",
+  "source_url": "https://www.openstreetmap.org/copyright",
+  "partitions": [
+    { "id": "highway-south-west", "selector": "highway", "bounds": { "south": 43.638108, "west": -79.39671, "north": 43.6482, "east": -79.3805 } },
+    { "id": "highway-south-east", "selector": "highway", "bounds": { "south": 43.638108, "west": -79.3805, "north": 43.6482, "east": -79.36429 } },
+    { "id": "highway-north-west", "selector": "highway", "bounds": { "south": 43.6482, "west": -79.39671, "north": 43.658292, "east": -79.3805 } },
+    { "id": "highway-north-east", "selector": "highway", "bounds": { "south": 43.6482, "west": -79.3805, "north": 43.658292, "east": -79.36429 } },
+    { "id": "restriction-r0-c0", "selector": "restriction", "bounds": { "south": 43.638108, "west": -79.39671, "north": 43.643154, "east": -79.385903333 } },
+    { "id": "restriction-r0-c1", "selector": "restriction", "bounds": { "south": 43.638108, "west": -79.385903333, "north": 43.643154, "east": -79.375096667 } },
+    { "id": "restriction-r0-c2", "selector": "restriction", "bounds": { "south": 43.638108, "west": -79.375096667, "north": 43.643154, "east": -79.36429 } },
+    { "id": "restriction-r1-c0", "selector": "restriction", "bounds": { "south": 43.643154, "west": -79.39671, "north": 43.6482, "east": -79.385903333 } },
+    { "id": "restriction-r1-c1", "selector": "restriction", "bounds": { "south": 43.643154, "west": -79.385903333, "north": 43.6482, "east": -79.375096667 } },
+    { "id": "restriction-r1-c2", "selector": "restriction", "bounds": { "south": 43.643154, "west": -79.375096667, "north": 43.6482, "east": -79.36429 } },
+    { "id": "restriction-r2-c0", "selector": "restriction", "bounds": { "south": 43.6482, "west": -79.39671, "north": 43.653246, "east": -79.385903333 } },
+    { "id": "restriction-r2-c1", "selector": "restriction", "bounds": { "south": 43.6482, "west": -79.385903333, "north": 43.653246, "east": -79.375096667 } },
+    { "id": "restriction-r2-c2", "selector": "restriction", "bounds": { "south": 43.6482, "west": -79.375096667, "north": 43.653246, "east": -79.36429 } },
+    { "id": "restriction-r3-c0", "selector": "restriction", "bounds": { "south": 43.653246, "west": -79.39671, "north": 43.658292, "east": -79.385903333 } },
+    { "id": "restriction-r3-c1", "selector": "restriction", "bounds": { "south": 43.653246, "west": -79.385903333, "north": 43.658292, "east": -79.375096667 } },
+    { "id": "restriction-r3-c2", "selector": "restriction", "bounds": { "south": 43.653246, "west": -79.375096667, "north": 43.658292, "east": -79.36429 } }
+  ]
+}

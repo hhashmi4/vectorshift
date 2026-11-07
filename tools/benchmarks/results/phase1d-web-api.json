@@ -1,0 +1,47 @@
+{
+  "benchmark_version": 1,
+  "generated_at": "2026-11-07T06:30:56.966Z",
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v24.13.0",
+    "cpu_model": "Apple M4",
+    "server": "next start production build, loopback HTTP/1.1"
+  },
+  "methodology": {
+    "sample_count": 200,
+    "warmup_count": 10,
+    "algorithms": "alternating Dijkstra and A* against one deterministic supported reference pair",
+    "concurrency": 1,
+    "interpretation": "local loopback baseline only; not a city-scale, network, or browser-frame benchmark"
+  },
+  "graph_sha256": "c12c4523e0b43725d6ad843816593395b6a0e780408c8009dc928756105c6573",
+  "network_endpoint": {
+    "cold_process_request_ms": 483.33391700000004,
+    "response_bytes": 1288019,
+    "response_sha256": "34dabd40be5732653eb7ddf9f19ca55b0695394fbd19a2e8b854f8f637b8300c"
+  },
+  "route_endpoint": {
+    "status_counts": {
+      "found": 200
+    },
+    "round_trip_ms": {
+      "median": 4.594833000000108,
+      "p95": 6.687124999999924,
+      "p99": 8.037374999999997,
+      "maximum": 10.79849999999999
+    },
+    "server_compute_ms": {
+      "median": 3.6962079999993875,
+      "p95": 5.1756249999998545,
+      "p99": 6.796499999998559,
+      "maximum": 8.746082999999999
+    }
+  },
+  "production_build": {
+    "emitted_static_js_css_file_count": 22,
+    "emitted_static_js_css_bytes": 2092738,
+    "emitted_static_js_css_gzip_bytes": 593671,
+    "caveat": "All emitted static JS/CSS chunks, not a per-route transfer measurement; browser caching and compression headers are excluded."
+  }
+}

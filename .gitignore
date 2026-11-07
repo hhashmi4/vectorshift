@@ -1,0 +1,57 @@
+# Dependencies and tool caches
+node_modules/
+.npm/
+.pnpm-store/
+.turbo/
+.next/
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+__pycache__/
+*.py[cod]
+
+# Build, coverage, and runtime output
+dist/
+build/
+coverage/
+playwright-report/
+test-results/
+artifacts/
+outputs/
+runs/
+*.log
+*.tsbuildinfo
+
+# Next.js regenerates this with environment-specific route type paths.
+apps/web/next-env.d.ts
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.wrangler/
+.dev.vars
+
+# Large geospatial and simulation data
+data/raw/
+data/derived/
+data/cache/
+*.osm
+*.osm.pbf
+*.pmtiles
+*.mbtiles
+*.parquet
+*.arrow
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json

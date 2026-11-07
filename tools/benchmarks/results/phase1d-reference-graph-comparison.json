@@ -1,0 +1,417 @@
+{
+  "comparison_version": 1,
+  "generated_at": "2026-11-07T03:33:45.578Z",
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v24.13.0",
+    "cpu_model": "Apple M4"
+  },
+  "methodology": {
+    "sample_count": 500,
+    "seed": "0x1d500001",
+    "endpoints": "baseline largest motor SCC, common to halo, more than 100 m inside baseline bounds",
+    "algorithm": "Dijkstra"
+  },
+  "baseline": {
+    "dataset_version": "osm-2026-11-05-pipeline3",
+    "graph_sha256": "c12c4523e0b43725d6ad843816593395b6a0e780408c8009dc928756105c6573",
+    "graph_bytes": 9148994,
+    "support_bytes": 56706,
+    "statistics": {
+      "node_count": 7871,
+      "directed_edge_count": 20025,
+      "turn_rule_count": 82,
+      "weak_component_count": 16,
+      "weak_component_sizes": [
+        7725,
+        57,
+        20,
+        19,
+        10,
+        8,
+        6,
+        5,
+        4,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2
+      ],
+      "isolated_node_count": 0,
+      "parallel_edge_group_count": 865,
+      "total_directed_length_mm": 323114368,
+      "edge_count_by_hierarchy": {
+        "motorway": 96,
+        "trunk": 0,
+        "primary": 547,
+        "secondary": 1513,
+        "tertiary": 435,
+        "residential": 940,
+        "service": 1749,
+        "living_street": 22,
+        "path": 14350,
+        "other": 373
+      },
+      "edge_count_by_mode": {
+        "motor_vehicle": 3901,
+        "bicycle": 3980,
+        "pedestrian": 18990
+      }
+    },
+    "motor_largest_strong_component_nodes": 1830,
+    "route_latency_ms": {
+      "median": 1.213666000000103,
+      "p95": 2.5283329999997477,
+      "p99": 2.8637089999997443,
+      "maximum": 3.0448750000000473
+    }
+  },
+  "halo": {
+    "dataset_version": "osm-2026-11-05-halo500-pipeline3",
+    "graph_sha256": "cdca4ca0f75ef08fc34fc33ded8b41659e4398c87f399e29a80f94201f7c6f5a",
+    "graph_bytes": 22994684,
+    "support_bytes": 114005,
+    "statistics": {
+      "node_count": 19798,
+      "directed_edge_count": 50065,
+      "turn_rule_count": 177,
+      "weak_component_count": 27,
+      "weak_component_sizes": [
+        19499,
+        60,
+        41,
+        37,
+        21,
+        20,
+        17,
+        14,
+        11,
+        10,
+        10,
+        8,
+        8,
+        8,
+        6,
+        4,
+        3,
+        3,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2,
+        2
+      ],
+      "isolated_node_count": 0,
+      "parallel_edge_group_count": 2150,
+      "total_directed_length_mm": 792772113,
+      "edge_count_by_hierarchy": {
+        "motorway": 226,
+        "trunk": 0,
+        "primary": 1497,
+        "secondary": 2750,
+        "tertiary": 1490,
+        "residential": 3246,
+        "service": 4775,
+        "living_street": 56,
+        "path": 35496,
+        "other": 529
+      },
+      "edge_count_by_mode": {
+        "motor_vehicle": 10555,
+        "bicycle": 11207,
+        "pedestrian": 47404
+      }
+    },
+    "motor_largest_strong_component_nodes": 5301,
+    "route_latency_ms": {
+      "median": 1.9989999999997963,
+      "p95": 5.989666999999827,
+      "p99": 7.368875000000116,
+      "maximum": 8.296457999999802
+    }
+  },
+  "common_core_endpoint_nodes": 1253,
+  "route_comparison": {
+    "both_found": 500,
+    "reachability_changed": 0,
+    "same_cost": 492,
+    "same_edge_path": 492,
+    "halo_lower_cost": 8,
+    "halo_higher_cost": 0,
+    "baseline_boundary_sensitive": 76,
+    "halo_boundary_sensitive": 0,
+    "baseline_restriction_unsupported": 183,
+    "halo_restriction_unsupported": 184
+  },
+  "observed_phase1c_query": {
+    "query": {
+      "start_node_id": "node:osm:11209519166",
+      "destination_node_id": "node:osm:391174586",
+      "mode": "motor_vehicle"
+    },
+    "baseline": {
+      "dijkstra": {
+        "status": "found",
+        "cost_ms": 68031,
+        "distance_mm": 532856,
+        "edge_count": 30,
+        "edge_path": [
+          "edge:osm:way%3A553564817%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A3%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A4%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A5%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A6%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A7%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564811%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564811%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A24162504%3Asegment%3A9%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A8%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A7%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A6%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A5%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A4%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A3%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914742%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914743%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A62058569%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A868914746%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914746%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914746%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914747%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A868914747%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A868914747%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A62058555%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A62058555%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle:forward"
+        ],
+        "restriction_support": "supported",
+        "boundary_support": "supported",
+        "states_expanded": 1278
+      },
+      "astar": {
+        "status": "found",
+        "cost_ms": 68031,
+        "distance_mm": 532856,
+        "edge_count": 30,
+        "edge_path": [
+          "edge:osm:way%3A553564817%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A3%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A4%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A5%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A6%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A7%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564811%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564811%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A24162504%3Asegment%3A9%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A8%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A7%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A6%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A5%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A4%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A3%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914742%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914743%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A62058569%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A868914746%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914746%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914746%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914747%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A868914747%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A868914747%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A62058555%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A62058555%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle:forward"
+        ],
+        "restriction_support": "supported",
+        "boundary_support": "supported",
+        "states_expanded": 906
+      },
+      "algorithms_agree": true
+    },
+    "halo": {
+      "dijkstra": {
+        "status": "found",
+        "cost_ms": 68031,
+        "distance_mm": 532856,
+        "edge_count": 30,
+        "edge_path": [
+          "edge:osm:way%3A553564817%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A3%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A4%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A5%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A6%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A7%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564811%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564811%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A24162504%3Asegment%3A9%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A8%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A7%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A6%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A5%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A4%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A3%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914742%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914743%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A62058569%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A868914746%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914746%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914746%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914747%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A868914747%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A868914747%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A62058555%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A62058555%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle:forward"
+        ],
+        "restriction_support": "supported",
+        "boundary_support": "supported",
+        "states_expanded": 1643
+      },
+      "astar": {
+        "status": "found",
+        "cost_ms": 68031,
+        "distance_mm": 532856,
+        "edge_count": 30,
+        "edge_path": [
+          "edge:osm:way%3A553564817%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A3%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A4%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A5%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A6%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564817%3Asegment%3A7%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564811%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A553564811%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A24162504%3Asegment%3A9%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A8%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A7%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A6%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A5%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A4%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A3%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A24162504%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914742%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914743%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A62058569%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:forward",
+          "edge:osm:way%3A868914746%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914746%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914746%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle%2Bpedestrian:reverse",
+          "edge:osm:way%3A868914747%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A868914747%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A868914747%3Asegment%3A2%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A62058555%3Asegment%3A0%3Amodes%3Abicycle%2Bmotor_vehicle:forward",
+          "edge:osm:way%3A62058555%3Asegment%3A1%3Amodes%3Abicycle%2Bmotor_vehicle:forward"
+        ],
+        "restriction_support": "supported",
+        "boundary_support": "supported",
+        "states_expanded": 965
+      },
+      "algorithms_agree": true
+    }
+  },
+  "isolated_memory_measurements": {
+    "baseline": {
+      "artifact_path": "data/derived/osm-2026-11-05-pipeline3.road-graph.json",
+      "artifact_bytes": 9148994,
+      "dataset_version": "osm-2026-11-05-pipeline3",
+      "node_count": 7871,
+      "edge_count": 20025,
+      "load_and_index_ms": 315.307375,
+      "memory_before_bytes": {
+        "rss": 91570176,
+        "heapTotal": 13811712,
+        "heapUsed": 8710120,
+        "external": 8540048,
+        "arrayBuffers": 24815
+      },
+      "memory_after_bytes": {
+        "rss": 346652672,
+        "heapTotal": 185171968,
+        "heapUsed": 35229376,
+        "external": 17670483,
+        "arrayBuffers": 9173809
+      },
+      "retained_delta_bytes": {
+        "rss": 255082496,
+        "heap_used": 26519256,
+        "external": 9130435,
+        "array_buffers": 9148994
+      }
+    },
+    "halo": {
+      "artifact_path": "data/derived/osm-2026-11-05-halo500-pipeline3.road-graph.json",
+      "artifact_bytes": 22994684,
+      "dataset_version": "osm-2026-11-05-halo500-pipeline3",
+      "node_count": 19798,
+      "edge_count": 50065,
+      "load_and_index_ms": 687.156333,
+      "memory_before_bytes": {
+        "rss": 90767360,
+        "heapTotal": 13811712,
+        "heapUsed": 8694600,
+        "external": 8540048,
+        "arrayBuffers": 83858
+      },
+      "memory_after_bytes": {
+        "rss": 513523712,
+        "heapTotal": 235044864,
+        "heapUsed": 75065688,
+        "external": 31516173,
+        "arrayBuffers": 23019499
+      },
+      "retained_delta_bytes": {
+        "rss": 422756352,
+        "heap_used": 66371088,
+        "external": 22976125,
+        "array_buffers": 22935641
+      }
+    }
+  },
+  "process_memory_bytes": {
+    "at_start": {
+      "rss": 91570176,
+      "heapTotal": 14336000,
+      "heapUsed": 9972128,
+      "external": 8736849,
+      "arrayBuffers": 83862
+    },
+    "after_baseline_load_and_index": {
+      "rss": 398016512,
+      "heapTotal": 270401536,
+      "heapUsed": 193987160,
+      "external": 17883546,
+      "arrayBuffers": 9230519
+    },
+    "after_halo_load_and_index": {
+      "rss": 598179840,
+      "heapTotal": 397180928,
+      "heapUsed": 290580456,
+      "external": 31786535,
+      "arrayBuffers": 23133508
+    }
+  },
+  "limitations": [
+    "The latency batches run sequentially in one process and are not an isolated index-memory benchmark.",
+    "A larger halo reduces but does not eliminate acquisition-boundary effects.",
+    "Path differences can reflect added topology, added restrictions, or deterministic tie-breaking over a larger graph and require route-level inspection before publication."
+  ]
+}

@@ -1,0 +1,260 @@
+{
+  "manifest_version": 1,
+  "acquisition_strategy_version": "overpass-bounded-partitions/1",
+  "area_id": "toronto-downtown-halo-500m-v1",
+  "dataset_id": "toronto-downtown-halo500-road-graph",
+  "dataset_version": "osm-2026-11-05-halo500-pipeline3",
+  "source": "OpenStreetMap contributors via Overpass API",
+  "source_url": "https://www.openstreetmap.org/copyright",
+  "endpoint": "https://maps.mail.ru/osm/tools/overpass/api/interpreter",
+  "acquired_at": "2026-11-07T03:31:54.988Z",
+  "snapshot_at": "2026-11-05T00:00:00Z",
+  "bounds": {
+    "south": 43.638108,
+    "west": -79.39671,
+    "north": 43.658292,
+    "east": -79.36429
+  },
+  "plan_path": "tools/data-pipeline/config/toronto-downtown-halo-500m-partitions.json",
+  "plan_sha256": "9e21c5aeccd04f71b9a73786ff1bc86f38bbef14d95b2d03fb6f2cdc3ff19cc7",
+  "maximum_partition_bytes": 2097152,
+  "maximum_total_bytes": 33554432,
+  "partitions": [
+    {
+      "id": "highway-south-west",
+      "selector": "highway",
+      "bounds": {
+        "south": 43.638108,
+        "west": -79.39671,
+        "north": 43.6482,
+        "east": -79.3805
+      },
+      "query_sha256": "087e0b7e0171a99599f47a02676d7638f82155a9aad3b9184bd39dfa2840bdac",
+      "content_sha256": "20cbe259495d45b230da9b1d58dfac3cc1b6cf9834ab0857ac6d0e399d05effa",
+      "content_bytes": 1204646
+    },
+    {
+      "id": "highway-south-east",
+      "selector": "highway",
+      "bounds": {
+        "south": 43.638108,
+        "west": -79.3805,
+        "north": 43.6482,
+        "east": -79.36429
+      },
+      "query_sha256": "4025ad565e3b8163fa2957a323410169a3a81140ccbc4d60c929e83667d3421e",
+      "content_sha256": "5724791d3c80b47203b2d7e8223109fa4db35ab54a115be91e1c91484fe8a7f5",
+      "content_bytes": 836426
+    },
+    {
+      "id": "highway-north-west",
+      "selector": "highway",
+      "bounds": {
+        "south": 43.6482,
+        "west": -79.39671,
+        "north": 43.658292,
+        "east": -79.3805
+      },
+      "query_sha256": "f1d59fc7760ca44973a0b2820b0041ab214e1b493d52b02f5b9640575606cbc5",
+      "content_sha256": "fa0d8a7c18fd98902ccb98378af05900dc794745019b785df14d98c0861f14b5",
+      "content_bytes": 1082232
+    },
+    {
+      "id": "highway-north-east",
+      "selector": "highway",
+      "bounds": {
+        "south": 43.6482,
+        "west": -79.3805,
+        "north": 43.658292,
+        "east": -79.36429
+      },
+      "query_sha256": "e9779ffb0677efd8b1401dd104bdc0cb4f4d2d760191d06bef1e7556ba1ddc98",
+      "content_sha256": "e151fd7f38e461565b67530d7b2fc5d02aaf9ca9986d230719dd2cc6e0690472",
+      "content_bytes": 1096628
+    },
+    {
+      "id": "restriction-r0-c0",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.638108,
+        "west": -79.39671,
+        "north": 43.643154,
+        "east": -79.385903333
+      },
+      "query_sha256": "e6a327ed463df60bc8533e5182263a59398261be627160830311ec0b9887c25b",
+      "content_sha256": "854a56439dad659b43f7ad92aea58b32a1c067d103230d0452fdabb1a3174225",
+      "content_bytes": 30044
+    },
+    {
+      "id": "restriction-r0-c1",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.638108,
+        "west": -79.385903333,
+        "north": 43.643154,
+        "east": -79.375096667
+      },
+      "query_sha256": "f5ad3618564726ee7556fd0f6f0577da40a4874e20fb0ff2f5e6c5d76be4eba2",
+      "content_sha256": "f79852692b60751b8b80778e132822f37b2455a23698ceb88073f07be37ab68b",
+      "content_bytes": 29980
+    },
+    {
+      "id": "restriction-r0-c2",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.638108,
+        "west": -79.375096667,
+        "north": 43.643154,
+        "east": -79.36429
+      },
+      "query_sha256": "0140708275eb537fd754af652e1d559ead406e729ec6cbbe7a9ab4af95bffbc4",
+      "content_sha256": "e457728adbf0a7770a4b7a3871da8ea9facd396a5985d7762b5b062215941568",
+      "content_bytes": 2098
+    },
+    {
+      "id": "restriction-r1-c0",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.643154,
+        "west": -79.39671,
+        "north": 43.6482,
+        "east": -79.385903333
+      },
+      "query_sha256": "5a84798fe6e3c5366583ee3f24c8ee7e4cda72bf85fb7e992ffa2835836d0552",
+      "content_sha256": "9f84656e1366ac223b0ea5ce82738aa9dd82e2e2e7e8e9af9bf5638e9431fa42",
+      "content_bytes": 37559
+    },
+    {
+      "id": "restriction-r1-c1",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.643154,
+        "west": -79.385903333,
+        "north": 43.6482,
+        "east": -79.375096667
+      },
+      "query_sha256": "f2d2ee15e793072f32a5f412ea5c6c35e711213d62c56bab00305568589616f4",
+      "content_sha256": "733a6a4713d1b56303bbb7f8692f160756e9cab25d618d83f426bbe8bb7d69d0",
+      "content_bytes": 40035
+    },
+    {
+      "id": "restriction-r1-c2",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.643154,
+        "west": -79.375096667,
+        "north": 43.6482,
+        "east": -79.36429
+      },
+      "query_sha256": "3b0cee4f50b8bc1bb733da0bb7cac205bc535eab33e543738eab3541b222e2bc",
+      "content_sha256": "090c506751fd87244d1ae5e7543d0196a88a9ff4056d595b91ad79600720452b",
+      "content_bytes": 19144
+    },
+    {
+      "id": "restriction-r2-c0",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.6482,
+        "west": -79.39671,
+        "north": 43.653246,
+        "east": -79.385903333
+      },
+      "query_sha256": "2ab25123d9b1e3d4181e5a43c289c0160acbeeeb80e844ce096aa11c94b2a233",
+      "content_sha256": "fd2b75722a35229f0ed8b2c638913c48b5f5f313317b7eb3cb9796adb6831b05",
+      "content_bytes": 27359
+    },
+    {
+      "id": "restriction-r2-c1",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.6482,
+        "west": -79.385903333,
+        "north": 43.653246,
+        "east": -79.375096667
+      },
+      "query_sha256": "bc00dcbe3ea6d85d76f062f49107f6fd93e40b156bbdf042aff46d4264170049",
+      "content_sha256": "a76132cc06cb86315f90293a312e371d598e0a73640fdc333991a8907abbae22",
+      "content_bytes": 51282
+    },
+    {
+      "id": "restriction-r2-c2",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.6482,
+        "west": -79.375096667,
+        "north": 43.653246,
+        "east": -79.36429
+      },
+      "query_sha256": "663c280a65f3437e8228d38ee45b224d7eb2b7aa9fe9005e60f03eaf5685f81d",
+      "content_sha256": "209d1347a8999725252b0e9685c58ad26d0206247907310c561ba5f1635c5441",
+      "content_bytes": 32700
+    },
+    {
+      "id": "restriction-r3-c0",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.653246,
+        "west": -79.39671,
+        "north": 43.658292,
+        "east": -79.385903333
+      },
+      "query_sha256": "2cc0823574bf587828a9d1cc0e69f541a4720d49fa537686b74ca99a0d1c34ca",
+      "content_sha256": "5a776b7f933d10cc1bf42bf7c0dbc2f2e4cd4ab84666e0db976f59bdd347957a",
+      "content_bytes": 23422
+    },
+    {
+      "id": "restriction-r3-c1",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.653246,
+        "west": -79.385903333,
+        "north": 43.658292,
+        "east": -79.375096667
+      },
+      "query_sha256": "304865040435c0c68223a1664354850a24dfb98cb1573a7e3c5e25ef3578ecb7",
+      "content_sha256": "3186ff2a66668daea79632abf5415e988d49bde105351cfd678e93ffb9697266",
+      "content_bytes": 38633
+    },
+    {
+      "id": "restriction-r3-c2",
+      "selector": "restriction",
+      "bounds": {
+        "south": 43.653246,
+        "west": -79.375096667,
+        "north": 43.658292,
+        "east": -79.36429
+      },
+      "query_sha256": "d463993a9fbcb8fb63685063855259347749ac137f4e2cab3feecc585c5672e5",
+      "content_sha256": "9389a301d9bb7b7c0dffb0da733dfaef861f85d868d25971bb1a0626cea3660a",
+      "content_bytes": 33294
+    }
+  ],
+  "content_sha256": "449e225938f87a5286f19ca452ff108fa8531f2edc27d7c1d963cf12205f3404",
+  "content_bytes": 3102727,
+  "element_counts": {
+    "node": 20771,
+    "way": 7529,
+    "relation": 284
+  },
+  "raw_local_path": "data/raw/toronto-downtown-halo-500m-2026-11-05.overpass.json",
+  "pipeline_version": "osm-road-graph/3",
+  "graph_schema_version": 2,
+  "routing_support_artifact_version": 1,
+  "u_turn_policy": "source_rules_only",
+  "derived": {
+    "graph_path": "data/derived/osm-2026-11-05-halo500-pipeline3.road-graph.json",
+    "graph_sha256": "cdca4ca0f75ef08fc34fc33ded8b41659e4398c87f399e29a80f94201f7c6f5a",
+    "graph_file_sha256": "0d46f8c7e0cbe0b3db61bb0b1bd2c41235a269220bf0b44f1a2c2e861d2388aa",
+    "graph_bytes": 22994684,
+    "routing_support_path": "data/derived/osm-2026-11-05-halo500-pipeline3.routing-support.json",
+    "routing_support_sha256": "660ef7be9135ece298666d3179cc7bacad2a66272c632e2b8abdb4e5547c08b4",
+    "routing_support_bytes": 114005,
+    "node_count": 19798,
+    "directed_edge_count": 50065,
+    "turn_rule_count": 177,
+    "restriction_concern_count": 147
+  },
+  "license": "ODbL-1.0",
+  "attribution": "© OpenStreetMap contributors",
+  "redistribution_note": "Raw and derived OSM databases remain ODbL-covered and are not committed with Apache-2.0 code."
+}

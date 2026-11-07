@@ -1,0 +1,27 @@
+name: Feature request
+description: Propose a product or engineering capability.
+title: "[Proposal]: "
+labels: ["proposal", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Which user or engineering problem needs solving?
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Desired outcome and non-goals
+    validations:
+      required: true
+  - type: textarea
+    id: constraints
+    attributes:
+      label: Constraints and evidence
+      description: Consider determinism, contracts, security, data licensing, accessibility, performance, cost, and operations.
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

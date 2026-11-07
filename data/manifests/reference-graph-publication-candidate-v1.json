@@ -1,0 +1,77 @@
+{
+  "manifest_version": 1,
+  "publication_id": "toronto-downtown-reference-candidate-v1",
+  "publication_status": "blocked",
+  "dataset_id": "toronto-downtown-halo500-road-graph",
+  "dataset_version": "osm-2026-11-05-halo500-pipeline3",
+  "source": {
+    "provider": "OpenStreetMap contributors via Overpass API",
+    "snapshot_at": "2026-11-05T00:00:00Z",
+    "acquisition_manifest": "data/manifests/toronto-downtown-halo-500m-2026-11-05.json",
+    "acquisition_manifest_sha256": "02685ce483489f136de1ae706a681432bca64d1af543c38eb71163ba1a0d9ed4",
+    "content_sha256": "449e225938f87a5286f19ca452ff108fa8531f2edc27d7c1d963cf12205f3404",
+    "license": "ODbL-1.0",
+    "attribution": "© OpenStreetMap contributors",
+    "source_url": "https://www.openstreetmap.org/copyright"
+  },
+  "graph": {
+    "schema_version": 2,
+    "pipeline_version": "osm-road-graph/3",
+    "canonical_graph_sha256": "cdca4ca0f75ef08fc34fc33ded8b41659e4398c87f399e29a80f94201f7c6f5a",
+    "artifact_file_sha256": "0d46f8c7e0cbe0b3db61bb0b1bd2c41235a269220bf0b44f1a2c2e861d2388aa",
+    "artifact_bytes": 22994684,
+    "node_count": 19798,
+    "directed_edge_count": 50065,
+    "turn_rule_count": 177
+  },
+  "routing_support": {
+    "artifact_version": 1,
+    "artifact_sha256": "660ef7be9135ece298666d3179cc7bacad2a66272c632e2b8abdb4e5547c08b4",
+    "u_turn_policy": "source_rules_only",
+    "supported_modes": ["bicycle", "motor_vehicle", "pedestrian"],
+    "source_restriction_relations": 284,
+    "fully_imported_relations": 134,
+    "partially_imported_relations": 18,
+    "unresolved_concerns": 147
+  },
+  "boundary_coverage": {
+    "crs": "EPSG:4326",
+    "south": 43.638108,
+    "west": -79.39671,
+    "north": 43.658292,
+    "east": -79.36429,
+    "halo_from_baseline_metres": 500,
+    "outside_member_nodes": 1063,
+    "qualification_policy": "endpoints and every returned path remain subject to restriction and boundary diagnostics"
+  },
+  "comparison_evidence": {
+    "path": "tools/benchmarks/results/phase1d-reference-graph-comparison.json",
+    "sha256": "67bb180d9e30efcee9d96afd9cb26a8be3d310606c2d041eb6ae3cceaf4cfc61",
+    "fixed_seed_queries": 500,
+    "same_cost_queries": 492,
+    "changed_lower_cost_queries": 8,
+    "halo_boundary_sensitive_queries": 0,
+    "halo_restriction_unsupported_queries": 184
+  },
+  "reproduction": {
+    "runtime": "Node.js 24.x",
+    "verified_environment": "macOS ARM64 Apple M4",
+    "clean_same_machine_reproduction": true,
+    "second_machine_reproduction": false,
+    "procedure": "docs/engineering/reference-graph-publication.md"
+  },
+  "known_limitations": [
+    "Conditional restrictions are not evaluated without explicit temporal and vehicle context.",
+    "Via-way restrictions are detected on candidate paths but are not integrated into alternative-path search state.",
+    "Aggregate motor_vehicle mode cannot represent bus, PSV or taxi exceptions precisely.",
+    "Fourteen source transitions remain unresolved after access and direction filtering.",
+    "The 500 metre halo reduces but cannot prove elimination of acquisition-boundary effects.",
+    "Eight of 500 fixed-seed core routes changed and require independent route-level review.",
+    "No second supported machine has reproduced the publication candidate."
+  ],
+  "publication_blockers": [
+    "Independent review of the eight changed reference routes is incomplete.",
+    "Via-way, conditional and aggregate vehicle-exception product policy remains intentionally conservative and incomplete.",
+    "Second-machine reproduction of this halo candidate is incomplete."
+  ]
+}

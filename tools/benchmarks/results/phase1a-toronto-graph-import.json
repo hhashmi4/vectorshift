@@ -1,0 +1,128 @@
+{
+  "benchmark_version": 1,
+  "generated_at": "2026-11-06T20:30:56.946Z",
+  "question": "What are the parse, validated OSM import, canonical serialization, and retained-memory baselines for the pinned Phase 1A Toronto reference input?",
+  "command": "npm run benchmark:graph",
+  "warmup_runs": 3,
+  "measured_runs": 10,
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v24.13.0",
+    "cpu_model": "Apple M4",
+    "logical_cpu_count": 10,
+    "total_memory_bytes": 17179869184,
+    "power_mode": "not recorded",
+    "source_commit": "unavailable: repository has no commits",
+    "graph_implementation_sha256": "478c023713b300fe4d08541a6639ac4b97a5070b7c2ee0b37b93edb9f9eb5ea8"
+  },
+  "workload": {
+    "dataset_id": "toronto-downtown-road-graph",
+    "dataset_version": "osm-2026-11-05-pipeline1",
+    "raw_source_sha256": "d11b99c6b509c2a3fd8f431a50b090207559dcc1245d6bf4e7c1445d8738af7a",
+    "raw_source_bytes": 1811425,
+    "graph_sha256": "568ac48e30edfb27f21d3f0a92c9492c3c27623c6bc5b4b837cf01e38035b89e",
+    "statistics": {
+      "node_count": 7969,
+      "directed_edge_count": 18359,
+      "turn_rule_count": 0,
+      "weak_component_count": 19,
+      "weak_component_sizes": [
+        7767,
+        57,
+        28,
+        20,
+        16,
+        15,
+        10,
+        10,
+        8,
+        8,
+        6,
+        5,
+        4,
+        3,
+        3,
+        3,
+        2,
+        2,
+        2
+      ],
+      "isolated_node_count": 0,
+      "parallel_edge_group_count": 0,
+      "total_directed_length_mm": 291002495,
+      "edge_count_by_hierarchy": {
+        "motorway": 96,
+        "trunk": 0,
+        "primary": 297,
+        "secondary": 915,
+        "tertiary": 289,
+        "residential": 712,
+        "service": 1483,
+        "living_street": 14,
+        "path": 14273,
+        "other": 280
+      },
+      "edge_count_by_mode": {
+        "motor_vehicle": 4046,
+        "bicycle": 4054,
+        "pedestrian": 18189
+      }
+    }
+  },
+  "correctness": {
+    "all_run_graph_digests_identical": true,
+    "expected_manifest_digest_matched": true
+  },
+  "timing_milliseconds": {
+    "json_parse": {
+      "samples": 10,
+      "min": 3.309041999999863,
+      "median": 3.3812920000000304,
+      "p95": 3.497666999999865,
+      "max": 3.497666999999865,
+      "mean": 3.3966834999999604
+    },
+    "validated_import": {
+      "samples": 10,
+      "min": 35.234500000000025,
+      "median": 37.609707999999955,
+      "p95": 49.008625000000166,
+      "max": 49.008625000000166,
+      "mean": 39.52360420000002
+    },
+    "canonical_serialization": {
+      "samples": 10,
+      "min": 106.03612500000008,
+      "median": 107.82900000000018,
+      "p95": 117.71787500000005,
+      "max": 117.71787500000005,
+      "mean": 109.31863750000007
+    },
+    "end_to_end": {
+      "samples": 10,
+      "min": 146.934166,
+      "median": 150.26254099999983,
+      "p95": 159.50862500000017,
+      "max": 159.50862500000017,
+      "mean": 152.24309990000003
+    }
+  },
+  "retained_memory_bytes": {
+    "baseline_heap_used": 32884544,
+    "retained_heap_used": 52491704,
+    "heap_used_delta": 19607160,
+    "baseline_rss": 582893568,
+    "retained_rss": 590970880,
+    "rss_delta": 8077312,
+    "note": "Single-process retained delta after forced GC; includes parsed OSM document, graph, and serialized artifact and is not a peak-memory measurement."
+  },
+  "limitations": [
+    "One MacBook configuration and one Node.js build; no cross-machine generalization.",
+    "Ten measured runs are an engineering baseline, not an SLO or statistically mature regression threshold.",
+    "Power mode was not recorded and background system load was not controlled.",
+    "The repository has no commit, so the graph source-tree digest identifies the implementation under test.",
+    "Turn-restriction relations are counted but not imported in Phase 1A.",
+    "Retained-memory delta is sensitive to V8 garbage collection and allocator behavior."
+  ]
+}

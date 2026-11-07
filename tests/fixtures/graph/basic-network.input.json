@@ -1,0 +1,71 @@
+{
+  "namespace": "synthetic",
+  "dataset": {
+    "dataset_id": "synthetic-basic-network",
+    "dataset_version": "1",
+    "source": {
+      "provider": "VECTORSHIFT synthetic fixture",
+      "source_uri": "synthetic://vectorshift/basic-network/v1",
+      "license": "Apache-2.0",
+      "attribution": "VECTORSHIFT contributors",
+      "acquired_at": "2026-11-06T00:00:00Z",
+      "snapshot_at": "2026-11-06T00:00:00Z",
+      "bounds": {
+        "south_e7": 436400000,
+        "west_e7": -793900000,
+        "north_e7": 436600000,
+        "east_e7": -793600000
+      },
+      "source_sha256": "e921779d182584dff04a3d9a710768d6ea1890c6611640610f67260038b52bbf",
+      "pipeline_version": "synthetic-fixture/1"
+    }
+  },
+  "nodes": [
+    { "source_node_id": "a", "coordinate_e7": [-793800000, 436500000] },
+    { "source_node_id": "b", "coordinate_e7": [-793790000, 436500000] },
+    { "source_node_id": "c", "coordinate_e7": [-793780000, 436500000] },
+    { "source_node_id": "d", "coordinate_e7": [-793700000, 436520000] }
+  ],
+  "segments": [
+    {
+      "source_segment_id": "s1",
+      "from_source_node_id": "a",
+      "to_source_node_id": "b",
+      "direction": "both",
+      "hierarchy": "residential",
+      "modes": ["motor_vehicle", "bicycle"],
+      "length_mm": 100000,
+      "traversal_time_ms_by_mode": { "motor_vehicle": 7200, "bicycle": 24000 }
+    },
+    {
+      "source_segment_id": "s2",
+      "from_source_node_id": "b",
+      "to_source_node_id": "c",
+      "direction": "forward",
+      "hierarchy": "primary",
+      "modes": ["motor_vehicle"],
+      "length_mm": 120000,
+      "traversal_time_ms_by_mode": { "motor_vehicle": 10800 }
+    },
+    {
+      "source_segment_id": "s3",
+      "from_source_node_id": "b",
+      "to_source_node_id": "c",
+      "direction": "forward",
+      "hierarchy": "service",
+      "modes": ["motor_vehicle"],
+      "length_mm": 130000,
+      "traversal_time_ms_by_mode": { "motor_vehicle": 11700 }
+    }
+  ],
+  "turn_rules": [
+    {
+      "id": "turn:synthetic:s1-forward-to-s2-forward",
+      "via_node_id": "node:synthetic:b",
+      "from_edge_id": "edge:synthetic:s1:forward",
+      "to_edge_id": "edge:synthetic:s2:forward",
+      "modes": ["motor_vehicle"],
+      "kind": "forbidden"
+    }
+  ]
+}

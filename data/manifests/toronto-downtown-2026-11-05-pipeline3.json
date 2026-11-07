@@ -1,0 +1,48 @@
+{
+  "manifest_version": 1,
+  "area_id": "toronto-downtown-reference-v1",
+  "dataset_id": "toronto-downtown-road-graph",
+  "dataset_version": "osm-2026-11-05-pipeline3",
+  "source": "OpenStreetMap contributors via Overpass API",
+  "source_url": "https://www.openstreetmap.org/copyright",
+  "endpoint": "https://overpass.private.coffee/api/interpreter",
+  "overpass_generator": "Overpass API 0.7.62.11 87bfad18",
+  "server_database_base_at": "2026-11-06T20:21:06Z",
+  "acquired_at": "2026-11-06T20:22:36.340Z",
+  "snapshot_at": "2026-11-05T00:00:00Z",
+  "bounds": {
+    "south": 43.6426,
+    "west": -79.3905,
+    "north": 43.6538,
+    "east": -79.3705
+  },
+  "query_path": "tools/data-pipeline/queries/toronto-downtown-roads.overpassql",
+  "query_sha256": "b2020266492b221188e7cd0fd8810cd4ee16c3ba25a1b1aecc44193c27bdd046",
+  "content_sha256": "d11b99c6b509c2a3fd8f431a50b090207559dcc1245d6bf4e7c1445d8738af7a",
+  "content_bytes": 1811425,
+  "element_counts": {
+    "node": 8197,
+    "way": 3840,
+    "relation": 133
+  },
+  "raw_local_path": "data/raw/toronto-downtown-2026-11-05.overpass.json",
+  "pipeline_version": "osm-road-graph/3",
+  "graph_schema_version": 2,
+  "routing_support_artifact_version": 1,
+  "u_turn_policy": "source_rules_only",
+  "derived": {
+    "graph_path": "data/derived/osm-2026-11-05-pipeline3.road-graph.json",
+    "graph_sha256": "c12c4523e0b43725d6ad843816593395b6a0e780408c8009dc928756105c6573",
+    "graph_bytes": 9148994,
+    "routing_support_path": "data/derived/osm-2026-11-05-pipeline3.routing-support.json",
+    "routing_support_sha256": "a4b8c49ec359cad6b70e947b012e6e01f8d0b984b2d066f734c61666fe362eae",
+    "routing_support_bytes": 56706,
+    "node_count": 7871,
+    "directed_edge_count": 20025,
+    "turn_rule_count": 82,
+    "restriction_concern_count": 77
+  },
+  "license": "ODbL-1.0",
+  "attribution": "© OpenStreetMap contributors",
+  "redistribution_note": "Raw and derived OSM databases are not covered by the repository Apache-2.0 license; preserve ODbL attribution and share-alike obligations."
+}

@@ -1,0 +1,38 @@
+{
+  "name": "vectorshift",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Engineering foundation for an explainable, deterministic urban disruption simulator.",
+  "engines": {
+    "node": ">=24 <25"
+  },
+  "workspaces": [
+    "apps/*",
+    "services/api",
+    "packages/*",
+    "tools/*"
+  ],
+  "scripts": {
+    "check": "npm run whitespace:check && npm run docs:check && npm run typecheck && npm run typecheck:web && npm test",
+    "whitespace:check": "node tools/validation/check-whitespace.mjs",
+    "docs:check": "node tools/validation/check-docs.mjs",
+    "typecheck": "tsc --project tsconfig.json",
+    "test": "npm run test:graph && npm run test:web",
+    "test:graph": "npm run test --workspace @vectorshift/graph",
+    "test:web": "npm run test --workspace @vectorshift/web",
+    "test:web:e2e": "npm run test:e2e --workspace @vectorshift/web",
+    "typecheck:web": "npm run typecheck --workspace @vectorshift/web",
+    "dev:web": "npm run dev --workspace @vectorshift/web",
+    "build:web": "npm run build --workspace @vectorshift/web",
+    "benchmark:graph": "npm run benchmark --workspace @vectorshift/graph",
+    "benchmark:routing": "npm run benchmark:routing --workspace @vectorshift/graph",
+    "benchmark:web:api": "npm run benchmark:api --workspace @vectorshift/web",
+    "benchmark:web:browser": "npm run benchmark:browser --workspace @vectorshift/web",
+    "visual:web": "npm run visual:verify --workspace @vectorshift/web"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "7.0.2"
+  }
+}

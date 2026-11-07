@@ -1,0 +1,46 @@
+{
+  "benchmark_version": 1,
+  "generated_at": "2026-11-07T06:31:42.522Z",
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v24.13.0",
+    "browser": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36",
+    "viewport_css_px": {
+      "width": 1440,
+      "height": 960
+    },
+    "server": "Next.js production build over loopback"
+  },
+  "methodology": {
+    "route_samples": 30,
+    "route_workload": "one deterministic supported pair; alternate A* and Dijkstra after one explicit compute",
+    "pan_gestures": 20,
+    "reduced_motion": true,
+    "interpretation": "headless local interaction baseline; not an FPS, GPU, field-user, or city-scale result"
+  },
+  "graph_ready_ms": 169.58350000000007,
+  "route_interaction_ms": {
+    "median": 25.238374999999905,
+    "p95": 30.182874999999967,
+    "p99": 64.74620800000002,
+    "maximum": 64.74620800000002
+  },
+  "resources": {
+    "count": 40,
+    "transfer_bytes": 2016767,
+    "encoded_body_bytes": 2004767
+  },
+  "memory": {
+    "used_js_heap_before_bytes": 10136423,
+    "used_js_heap_after_bytes": 13943846,
+    "delta_bytes": 3807423,
+    "caveat": "Chromium performance.memory after explicit GC; directional leak signal only, not total renderer/GPU/RSS"
+  },
+  "long_tasks": {
+    "count": 0,
+    "maximum_ms": 0,
+    "total_ms": 0,
+    "caveat": "PerformanceObserver long tasks during routing and scripted pan gestures; headless timing is not visual smoothness proof"
+  }
+}

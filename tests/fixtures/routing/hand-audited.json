@@ -1,0 +1,63 @@
+{
+  "graph_input": {
+    "namespace": "routing-fixture",
+    "dataset": {
+      "dataset_id": "hand-audited-routing-corpus",
+      "dataset_version": "1",
+      "source": {
+        "provider": "VECTORSHIFT synthetic fixture",
+        "source_uri": "synthetic://vectorshift/routing-corpus/v1",
+        "license": "Apache-2.0",
+        "attribution": "VECTORSHIFT contributors",
+        "acquired_at": "2026-11-06T00:00:00Z",
+        "snapshot_at": "2026-11-06T00:00:00Z",
+        "bounds": { "south_e7": 436400000, "west_e7": -793900000, "north_e7": 436700000, "east_e7": -793500000 },
+        "source_sha256": "3333333333333333333333333333333333333333333333333333333333333333",
+        "pipeline_version": "synthetic-fixture/1"
+      }
+    },
+    "nodes": [
+      { "source_node_id": "a", "coordinate_e7": [-793800000, 436500000] },
+      { "source_node_id": "b", "coordinate_e7": [-793790000, 436500000] },
+      { "source_node_id": "c", "coordinate_e7": [-793800000, 436510000] },
+      { "source_node_id": "d", "coordinate_e7": [-793780000, 436500000] },
+      { "source_node_id": "e", "coordinate_e7": [-793785000, 436505000] },
+      { "source_node_id": "x", "coordinate_e7": [-793700000, 436600000] },
+      { "source_node_id": "y", "coordinate_e7": [-793690000, 436600000] },
+      { "source_node_id": "r", "coordinate_e7": [-793600000, 436500000] },
+      { "source_node_id": "s", "coordinate_e7": [-793590000, 436510000] },
+      { "source_node_id": "t", "coordinate_e7": [-793580000, 436500000] },
+      { "source_node_id": "u", "coordinate_e7": [-793590000, 436490000] },
+      { "source_node_id": "z", "coordinate_e7": [-793550000, 436550000] }
+    ],
+    "segments": [
+      { "source_segment_id": "ab", "from_source_node_id": "a", "to_source_node_id": "b", "direction": "forward", "hierarchy": "residential", "modes": ["motor_vehicle", "bicycle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 5, "bicycle": 10 } },
+      { "source_segment_id": "ac", "from_source_node_id": "a", "to_source_node_id": "c", "direction": "forward", "hierarchy": "residential", "modes": ["motor_vehicle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 2 } },
+      { "source_segment_id": "cb", "from_source_node_id": "c", "to_source_node_id": "b", "direction": "forward", "hierarchy": "residential", "modes": ["motor_vehicle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 2 } },
+      { "source_segment_id": "bd-fast", "from_source_node_id": "b", "to_source_node_id": "d", "direction": "forward", "hierarchy": "primary", "modes": ["motor_vehicle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 3 } },
+      { "source_segment_id": "bd-slow", "from_source_node_id": "b", "to_source_node_id": "d", "direction": "forward", "hierarchy": "service", "modes": ["motor_vehicle", "bicycle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 8, "bicycle": 16 } },
+      { "source_segment_id": "be-zero", "from_source_node_id": "b", "to_source_node_id": "e", "direction": "forward", "hierarchy": "service", "modes": ["motor_vehicle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 0 } },
+      { "source_segment_id": "ed", "from_source_node_id": "e", "to_source_node_id": "d", "direction": "forward", "hierarchy": "service", "modes": ["motor_vehicle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 4 } },
+      { "source_segment_id": "xy", "from_source_node_id": "x", "to_source_node_id": "y", "direction": "forward", "hierarchy": "path", "modes": ["bicycle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "bicycle": 3 } },
+      { "source_segment_id": "rs", "from_source_node_id": "r", "to_source_node_id": "s", "direction": "forward", "hierarchy": "residential", "modes": ["motor_vehicle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 1 } },
+      { "source_segment_id": "st", "from_source_node_id": "s", "to_source_node_id": "t", "direction": "forward", "hierarchy": "residential", "modes": ["motor_vehicle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 1 } },
+      { "source_segment_id": "ru", "from_source_node_id": "r", "to_source_node_id": "u", "direction": "forward", "hierarchy": "residential", "modes": ["motor_vehicle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 1 } },
+      { "source_segment_id": "ut", "from_source_node_id": "u", "to_source_node_id": "t", "direction": "forward", "hierarchy": "residential", "modes": ["motor_vehicle"], "length_mm": 1000, "traversal_time_ms_by_mode": { "motor_vehicle": 1 } }
+    ],
+    "turn_rules": [
+      { "id": "turn:cb-to-bd-fast", "via_node_id": "node:routing-fixture:b", "from_edge_id": "edge:routing-fixture:cb:forward", "to_edge_id": "edge:routing-fixture:bd-fast:forward", "modes": ["motor_vehicle"], "kind": "forbidden" },
+      { "id": "turn:ac-to-cb-penalty", "via_node_id": "node:routing-fixture:c", "from_edge_id": "edge:routing-fixture:ac:forward", "to_edge_id": "edge:routing-fixture:cb:forward", "modes": ["motor_vehicle"], "kind": "penalty", "penalty_ms": 4 }
+    ]
+  },
+  "queries": [
+    { "name": "known shortest and parallel edge", "start": "a", "destination": "d", "mode": "motor_vehicle", "status": "found", "cost_ms": 8, "edge_path": ["edge:routing-fixture:ab:forward", "edge:routing-fixture:bd-fast:forward"] },
+    { "name": "parallel edge selection", "start": "b", "destination": "d", "mode": "motor_vehicle", "status": "found", "cost_ms": 3, "edge_path": ["edge:routing-fixture:bd-fast:forward"] },
+    { "name": "forbidden turn", "start": "c", "destination": "d", "mode": "motor_vehicle", "status": "found", "cost_ms": 6, "edge_path": ["edge:routing-fixture:cb:forward", "edge:routing-fixture:be-zero:forward", "edge:routing-fixture:ed:forward"] },
+    { "name": "zero-cost edge", "start": "b", "destination": "e", "mode": "motor_vehicle", "status": "found", "cost_ms": 0, "edge_path": ["edge:routing-fixture:be-zero:forward"] },
+    { "name": "one-way unreachable", "start": "d", "destination": "a", "mode": "motor_vehicle", "status": "unreachable", "cost_ms": null, "edge_path": [] },
+    { "name": "disconnected component", "start": "a", "destination": "x", "mode": "motor_vehicle", "status": "unreachable", "cost_ms": null, "edge_path": [] },
+    { "name": "mode restriction", "start": "a", "destination": "d", "mode": "bicycle", "status": "found", "cost_ms": 26, "edge_path": ["edge:routing-fixture:ab:forward", "edge:routing-fixture:bd-slow:forward"] },
+    { "name": "equal-cost deterministic alternative", "start": "r", "destination": "t", "mode": "motor_vehicle", "status": "found", "cost_ms": 2, "edge_path": ["edge:routing-fixture:rs:forward", "edge:routing-fixture:st:forward"] },
+    { "name": "start equals destination", "start": "z", "destination": "z", "mode": "pedestrian", "status": "found", "cost_ms": 0, "edge_path": [] }
+  ]
+}

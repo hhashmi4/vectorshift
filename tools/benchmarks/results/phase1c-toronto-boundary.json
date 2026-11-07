@@ -1,0 +1,76 @@
+{
+  "audit_version": 1,
+  "generated_at": "2026-11-06T21:11:39.311Z",
+  "environment": {
+    "platform": "darwin",
+    "architecture": "arm64",
+    "node": "v24.13.0",
+    "cpu_model": "Apple M4"
+  },
+  "graph": {
+    "dataset_version": "osm-2026-11-05-pipeline3",
+    "graph_sha256": "c12c4523e0b43725d6ad843816593395b6a0e780408c8009dc928756105c6573",
+    "node_count": 7871,
+    "edge_count": 20025
+  },
+  "acquisition_bounds_e7": {
+    "east_e7": -793705000,
+    "north_e7": 436538000,
+    "south_e7": 436426000,
+    "west_e7": -793905000
+  },
+  "outside_nodes": {
+    "total": 594,
+    "on_retained_way_with_inside_node": 594,
+    "not_connected_by_retained_way_to_inside_node": 0,
+    "maximum_excursion_mm": {
+      "west": 234556,
+      "east": 226398,
+      "south": 280089,
+      "north": 369568
+    }
+  },
+  "edges": {
+    "crossing_bounds": 501,
+    "outside_only": 833
+  },
+  "endpoint_sets": {
+    "largest_motor_strong_component": 1830,
+    "core_buffer_100m": 1253
+  },
+  "route_samples": {
+    "all_component_endpoints": {
+      "sample_count": 500,
+      "found": 500,
+      "unreachable": 0,
+      "boundary_supported": 203,
+      "boundary_sensitive": 297,
+      "restriction_unsupported": 149
+    },
+    "core_buffered_endpoints": {
+      "sample_count": 500,
+      "found": 500,
+      "unreachable": 0,
+      "boundary_supported": 435,
+      "boundary_sensitive": 65,
+      "restriction_unsupported": 190
+    },
+    "seed": "0x1c0b0a7"
+  },
+  "halo_candidate": {
+    "distance_m": 500,
+    "bounds": {
+      "south": 43.638108,
+      "west": -79.39671,
+      "north": 43.658292,
+      "east": -79.36429
+    },
+    "query_path": "tools/data-pipeline/queries/toronto-downtown-roads-halo-500m.overpassql",
+    "status": "procedure prepared; two 120-second endpoint attempts timed out without an artifact; comparison remains unmeasured"
+  },
+  "limitations": [
+    "A node sharing a retained way with an inside node is consistent with Overpass member expansion, but this test does not prove source completeness.",
+    "The 100 m core buffer is a Phase 1C diagnostic policy, not a proof that omitted roads cannot affect a route.",
+    "Component and route samples use one pinned extract and fixed synthetic endpoint distribution."
+  ]
+}

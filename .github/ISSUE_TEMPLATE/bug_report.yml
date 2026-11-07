@@ -1,0 +1,34 @@
+name: Bug report
+description: Report reproducible incorrect behavior (use private reporting for security issues).
+title: "[Bug]: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do not include secrets, private scenarios, restricted map data, or unredacted access URLs."
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction
+      description: Include minimal steps and synthetic inputs where possible.
+    validations:
+      required: true
+  - type: textarea
+    id: versions
+    attributes:
+      label: Versions and environment
+      description: Commit/release, browser/runtime, OS/architecture, map/graph/model/schema versions, and seed if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence and impact
+      description: Sanitized logs, checksums, screenshots, frequency, and scope.

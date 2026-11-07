@@ -1,0 +1,15 @@
+{
+  "name": "@vectorshift/graph",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": "./src/index.ts",
+  "scripts": {
+    "test": "node --test test/*.test.ts",
+    "benchmark": "node --expose-gc benchmark/import-benchmark.ts --output tools/benchmarks/results/phase1a-toronto-graph-import.json",
+    "benchmark:routing": "node --expose-gc benchmark/routing-benchmark.ts --output tools/benchmarks/results/phase1b-toronto-routing.json"
+  },
+  "engines": {
+    "node": ">=24 <25"
+  }
+}
