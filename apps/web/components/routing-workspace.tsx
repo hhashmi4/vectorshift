@@ -5,7 +5,7 @@ import * as maplibregl from "maplibre-gl";
 import type { GeoJSONSource, Map as MapLibreMap, MapMouseEvent, StyleSpecification } from "maplibre-gl";
 import type { Feature, FeatureCollection, LineString, Point } from "geojson";
 import type { NetworkView, RouteRequestView, RouteResponseView, WebRoutingAlgorithm, WebTravelMode } from "@/lib/contracts.ts";
-import { CITY_PRESETS, cityPreset, graphCoverageAt, type CityPreset, type GraphCoverage } from "@/lib/map-foundation.ts";
+import { CITY_PRESETS, cityPreset, cityPresetAt, graphCoverageAt, graphCoverageForPreset, isAtCityPreset, type CityPreset, type GraphCoverage } from "@/lib/map-foundation.ts";
 import { snapToEligibleEndpoint } from "@/lib/snapping.ts";
 import { IconButton, StatusPill, ToolIcon } from "@/components/ui/primitives.tsx";
 
@@ -23,6 +23,32 @@ const EMPTY_STYLE: StyleSpecification = { version: 8, sources: {}, layers: [{ id
 const EMPTY_LINES: FeatureCollection<LineString> = { type: "FeatureCollection", features: [] };
 const EMPTY_POINTS: FeatureCollection<Point> = { type: "FeatureCollection", features: [] };
 const CUSTOM_LAYERS = new Set(["network-hit", "network-casing", "network-lines", "route-casing", "route-line", "selection-points"]);
+const CITY_NAVIGATION_EASE_ID = "vectorshift-city-navigation";
+
+interface MapViewPosition {
+  readonly longitude: number;
+  readonly latitude: number;
+  readonly bearing: number;
+  readonly pitch: number;
+}
+
+interface LocationViewState {
+  readonly activePreset: CityPreset["id"] | "custom";
+  readonly selectedCoverage: GraphCoverage;
+  readonly viewportCoverage: GraphCoverage;
+  readonly viewPosition: MapViewPosition;
+  readonly pendingNavigationGeneration: number | null;
+}
+
+interface CameraNavigation {
+  readonly generation: number;
+  readonly preset: CityPreset;
+}
+
+interface NavigationEventData {
+  readonly vectorshiftNavigationGeneration?: number;
+  readonly originalEvent?: unknown;
+}
 
 function source(map: MapLibreMap | null, name: string): GeoJSONSource | undefined {
   return map?.getSource(name) as GeoJSONSource | undefined;
@@ -43,6 +69,10 @@ export function RoutingWorkspace() {
   const routeController = useRef<AbortController | null>(null);
   const routeGeneration = useRef(0);
   const networkGeneration = useRef(0);
+  const cameraNavigationGeneration = useRef(0);
+  const activeCameraNavigation = useRef<CameraNavigation | null>(null);
+  const mountedRef = useRef(false);
+  const resumeCameraNavigationRef = useRef<() => void>(() => undefined);
   const pendingModeRoute = useRef(false);
   const basemapFallbackApplied = useRef(false);
   const buildingLayers = useRef<string[]>([]);
@@ -55,6 +85,7 @@ export function RoutingWorkspace() {
   const executeRouteRef = useRef<(request: RouteRequestView) => Promise<void>>(async () => undefined);
 
   const [network, setNetwork] = useState<NetworkView | null>(null);
+  const [mapInitialized, setMapInitialized] = useState(false);
   const [mode, setMode] = useState<WebTravelMode>("motor_vehicle");
   const [algorithm, setAlgorithm] = useState<WebRoutingAlgorithm>("astar");
   const [start, setStart] = useState("");
@@ -74,10 +105,18 @@ export function RoutingWorkspace() {
   const [buildingsVisible, setBuildingsVisible] = useState(true);
   const [buildingsAvailable, setBuildingsAvailable] = useState(false);
   const [overlayGeneration, setOverlayGeneration] = useState(0);
-  const [activePreset, setActivePreset] = useState<CityPreset["id"] | "custom">("toronto");
-  const [viewPosition, setViewPosition] = useState({ longitude: GRAPH_CENTER[0], latitude: GRAPH_CENTER[1], bearing: 0, pitch: 0 });
-  const [coverage, setCoverage] = useState<GraphCoverage>(() => graphCoverageAt(GRAPH_CENTER[0], GRAPH_CENTER[1]));
+  const [locationView, setLocationView] = useState<LocationViewState>(() => {
+    const initialCoverage = graphCoverageForPreset("toronto");
+    return {
+      activePreset: "toronto",
+      selectedCoverage: initialCoverage,
+      viewportCoverage: initialCoverage,
+      viewPosition: { longitude: GRAPH_CENTER[0], latitude: GRAPH_CENTER[1], bearing: 0, pitch: 0 },
+      pendingNavigationGeneration: null,
+    };
+  });
   const [hoveredEdge, setHoveredEdge] = useState<string | null>(null);
+  const { activePreset, selectedCoverage: coverage, viewportCoverage, viewPosition } = locationView;
   inputRef.current = { start, destination, mode, algorithm };
   terrainEnabledRef.current = terrainEnabled;
   buildingsVisibleRef.current = buildingsVisible;
@@ -166,20 +205,37 @@ export function RoutingWorkspace() {
   }, [networkVisible, routeVisible, updateSelection]);
   installLayersRef.current = installLayers;
 
+  resumeCameraNavigationRef.current = () => {
+    const map = mapRef.current;
+    const navigation = activeCameraNavigation.current;
+    if (!map || !navigation || !mountedRef.current) return;
+    const camera = { center: [...navigation.preset.center] as [number, number], zoom: navigation.preset.zoom, pitch: 0, bearing: 0 };
+    const eventData: NavigationEventData = { vectorshiftNavigationGeneration: navigation.generation };
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      map.jumpTo(camera, eventData);
+      return;
+    }
+    map.easeTo({ ...camera, duration: 850, essential: false, easeId: CITY_NAVIGATION_EASE_ID }, eventData);
+  };
+
   useEffect(() => {
     if (!mapContainer.current || mapRef.current) return;
+    mountedRef.current = true;
     const map = new maplibregl.Map({ container: mapContainer.current, style: BASEMAP_STYLE_URL || EMPTY_STYLE, center: GRAPH_CENTER, zoom: 14.1, attributionControl: false, maxPitch: 75 });
     mapRef.current = map;
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true, showCompass: true }), "top-right");
     map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: "Road graph © OpenStreetMap contributors" }));
     map.getCanvas().setAttribute("aria-label", "Worldwide interactive map with separately qualified VECTORSHIFT graph coverage. Use the city control and route inspector for keyboard-accessible workflows.");
     map.on("style.load", () => {
+      if (!mountedRef.current) return;
       hoveredFeature.current = null;
       setBasemapState(basemapEnabledRef.current && BASEMAP_STYLE_URL && !basemapFallbackApplied.current ? "available" : "fallback");
       installLayersRef.current();
+      resumeCameraNavigationRef.current();
     });
-    map.on("load", () => installLayersRef.current());
+    map.on("load", () => { if (mountedRef.current) installLayersRef.current(); });
     map.on("error", (event) => {
+      if (!mountedRef.current) return;
       const sourceId = "sourceId" in event && typeof event.sourceId === "string" ? event.sourceId : null;
       if (sourceId === TERRAIN_SOURCE_ID) {
         terrainEnabledRef.current = false;
@@ -201,13 +257,48 @@ export function RoutingWorkspace() {
       }
       map.setStyle(EMPTY_STYLE, { diff: false });
     });
-    map.on("moveend", () => {
+    const synchronizeViewport = (event: NavigationEventData, settled: boolean) => {
+      if (!mountedRef.current) return;
       const center = map.getCenter();
-      setViewPosition({ longitude: center.lng, latitude: center.lat, bearing: map.getBearing(), pitch: map.getPitch() });
-      setCoverage(graphCoverageAt(center.lng, center.lat));
-      const matchingPreset = CITY_PRESETS.find((preset) => Math.abs(preset.center[0] - center.lng) < 0.005 && Math.abs(preset.center[1] - center.lat) < 0.005);
-      setActivePreset(matchingPreset?.id ?? "custom");
-    });
+      const viewPosition = { longitude: center.lng, latitude: center.lat, bearing: map.getBearing(), pitch: map.getPitch() };
+      const viewportCoverage = graphCoverageAt(center.lng, center.lat);
+      const eventGeneration = event.vectorshiftNavigationGeneration;
+      if (eventGeneration !== undefined) {
+        const navigation = activeCameraNavigation.current;
+        if (!navigation || navigation.generation !== eventGeneration) return;
+        const reachedTarget = isAtCityPreset(center.lng, center.lat, navigation.preset.id);
+        if (settled && reachedTarget) activeCameraNavigation.current = null;
+        setLocationView((current) => current.pendingNavigationGeneration === eventGeneration ? {
+          ...current,
+          viewportCoverage,
+          viewPosition,
+          pendingNavigationGeneration: settled && reachedTarget ? null : eventGeneration,
+        } : current);
+        if (settled && !reachedTarget) {
+          queueMicrotask(() => {
+            if (mountedRef.current && activeCameraNavigation.current?.generation === eventGeneration && !map.isMoving()) {
+              resumeCameraNavigationRef.current();
+            }
+          });
+        }
+        return;
+      }
+
+      if (activeCameraNavigation.current && event.originalEvent === undefined) return;
+
+      if (activeCameraNavigation.current) cameraNavigationGeneration.current += 1;
+      activeCameraNavigation.current = null;
+      const matchingPreset = cityPresetAt(center.lng, center.lat);
+      setLocationView({
+        activePreset: matchingPreset?.id ?? "custom",
+        selectedCoverage: viewportCoverage,
+        viewportCoverage,
+        viewPosition,
+        pendingNavigationGeneration: null,
+      });
+    };
+    map.on("move", (event) => synchronizeViewport(event as NavigationEventData, false));
+    map.on("moveend", (event) => synchronizeViewport(event as NavigationEventData, true));
     map.on("click", (event) => mapClickRef.current(event));
     map.on("mousemove", (event) => {
       if (!map.getLayer("network-hit")) return;
@@ -222,7 +313,17 @@ export function RoutingWorkspace() {
       map.getCanvas().style.cursor = edgeId ? "pointer" : "crosshair";
     });
     map.on("mouseout", () => { setHoveredEdge(null); map.getCanvas().style.cursor = "crosshair"; });
-    return () => { routeController.current?.abort(); map.remove(); mapRef.current = null; };
+    setMapInitialized(true);
+    resumeCameraNavigationRef.current();
+    return () => {
+      mountedRef.current = false;
+      cameraNavigationGeneration.current += 1;
+      activeCameraNavigation.current = null;
+      routeController.current?.abort();
+      map.stop();
+      map.remove();
+      mapRef.current = null;
+    };
   }, []);
 
   const executeRoute = useCallback(async (request: RouteRequestView) => {
@@ -339,13 +440,16 @@ export function RoutingWorkspace() {
   };
 
   const navigateTo = (id: CityPreset["id"]) => {
-    const map = mapRef.current;
-    if (!map) return;
     const preset = cityPreset(id);
-    setActivePreset(id);
-    const camera = { center: [...preset.center] as [number, number], zoom: preset.zoom, pitch: 0, bearing: 0 };
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) map.jumpTo(camera);
-    else map.easeTo({ ...camera, duration: 850, essential: false });
+    const generation = ++cameraNavigationGeneration.current;
+    activeCameraNavigation.current = { generation, preset };
+    setLocationView((current) => ({
+      ...current,
+      activePreset: id,
+      selectedCoverage: graphCoverageForPreset(id),
+      pendingNavigationGeneration: generation,
+    }));
+    if (mapRef.current) resumeCameraNavigationRef.current();
   };
 
   const togglePerspective = () => {
@@ -378,8 +482,8 @@ export function RoutingWorkspace() {
       <header className="topbar">
         <div className="identity"><span className="identity-glyph" aria-hidden="true">VS</span><span className="brand-mark">VECTORSHIFT</span></div>
         <div className="workspace-crumb"><span>Worldwide map</span><span className="crumb-separator">/</span><strong>Routing lab</strong></div>
-        <div className="city-control"><label htmlFor="city-preset">Go to</label><select id="city-preset" value={activePreset} onChange={(event) => { if (event.target.value !== "custom") navigateTo(event.target.value as CityPreset["id"]); }}><option value="custom" disabled>Custom view</option>{CITY_PRESETS.map((preset) => <option key={preset.id} value={preset.id}>{preset.label}</option>)}</select></div>
-        <div className="top-meta"><StatusPill tone={coverage.status === "qualified" ? "positive" : coverage.status === "experimental" ? "warning" : "neutral"}><span data-testid="graph-coverage-status">{coverage.label}</span></StatusPill><span className="dataset-chip mono" title={network?.graph.graph_sha256}>{network?.graph.dataset_version ?? "graph loading"}</span><IconButton label="Fit computed route" onClick={fitRoute} disabled={route?.status !== "found"}><ToolIcon name="fit" /></IconButton><IconButton label={inspectorOpen ? "Close route inspector" : "Open route inspector"} onClick={() => setInspectorOpen((value) => !value)}><ToolIcon name="panel" /></IconButton></div>
+        <div className="city-control"><label htmlFor="city-preset">Go to</label><select id="city-preset" value={activePreset} disabled={!mapInitialized} aria-busy={!mapInitialized} onChange={(event) => { if (event.target.value !== "custom") navigateTo(event.target.value as CityPreset["id"]); }}><option value="custom" disabled>Custom view</option>{CITY_PRESETS.map((preset) => <option key={preset.id} value={preset.id}>{preset.label}</option>)}</select></div>
+        <div className="top-meta"><StatusPill tone={coverage.status === "qualified" ? "positive" : coverage.status === "experimental" ? "warning" : "neutral"}><span data-testid="graph-coverage-status" aria-label={`${activePreset === "custom" ? "Viewport centre" : "Selected location"} coverage: ${coverage.label}`}>{coverage.label}</span></StatusPill><span className="dataset-chip mono" title={network?.graph.graph_sha256}>{network?.graph.dataset_version ?? "graph loading"}</span><IconButton label="Fit computed route" onClick={fitRoute} disabled={route?.status !== "found"}><ToolIcon name="fit" /></IconButton><IconButton label={inspectorOpen ? "Close route inspector" : "Open route inspector"} onClick={() => setInspectorOpen((value) => !value)}><ToolIcon name="panel" /></IconButton></div>
       </header>
 
       <nav className="rail" aria-label="Workspace sections">
@@ -390,9 +494,9 @@ export function RoutingWorkspace() {
       </nav>
 
       <section className="map-region" aria-label="Road graph map">
-        <div ref={mapContainer} className="map" data-testid="routing-map" data-map-ready={networkState === "ready"} data-overlays-ready={overlayGeneration > 0} data-terrain-state={terrainState} data-coverage={coverage.status} data-center-longitude={viewPosition.longitude.toFixed(4)} data-center-latitude={viewPosition.latitude.toFixed(4)} data-pitch={viewPosition.pitch.toFixed(1)} data-bearing={viewPosition.bearing.toFixed(1)} />
-        <div className="map-context"><span className="map-kicker">{Math.abs(viewPosition.latitude).toFixed(4)}° {viewPosition.latitude >= 0 ? "N" : "S"} · {Math.abs(viewPosition.longitude).toFixed(4)}° {viewPosition.longitude >= 0 ? "E" : "W"}</span><strong>{coverage.region}</strong><span>{selectionRole.current === "start" ? "Choose start" : "Choose destination"}</span></div>
-        <div className={`coverage-notice coverage-${coverage.status}`} role="status" aria-live="polite" data-testid="coverage-detail"><strong>{coverage.label}</strong><span>{coverage.message}</span></div>
+        <div ref={mapContainer} className="map" data-testid="routing-map" data-map-ready={networkState === "ready"} data-overlays-ready={overlayGeneration > 0} data-terrain-state={terrainState} data-selected-coverage={coverage.status} data-viewport-coverage={viewportCoverage.status} data-active-preset={activePreset} data-navigation-state={locationView.pendingNavigationGeneration === null ? "settled" : "moving"} data-center-longitude={viewPosition.longitude.toFixed(4)} data-center-latitude={viewPosition.latitude.toFixed(4)} data-pitch={viewPosition.pitch.toFixed(1)} data-bearing={viewPosition.bearing.toFixed(1)} />
+        <div className="map-context"><span className="map-kicker">{Math.abs(viewPosition.latitude).toFixed(4)}° {viewPosition.latitude >= 0 ? "N" : "S"} · {Math.abs(viewPosition.longitude).toFixed(4)}° {viewPosition.longitude >= 0 ? "E" : "W"}</span><strong>{viewportCoverage.region}</strong><span>Viewport coverage · {viewportCoverage.label}</span></div>
+        <div className={`coverage-notice coverage-${coverage.status}`} role="status" aria-live="polite" data-testid="coverage-detail"><strong>{coverage.label}</strong><span><span data-testid="coverage-scope">{activePreset === "custom" ? "Viewport centre" : "Selected location"}</span> · {coverage.message}</span></div>
         <button type="button" className="layers-trigger" aria-expanded={layersOpen} onClick={() => setLayersOpen((value) => !value)}><ToolIcon name="layers" /> Layers</button>
         {layersOpen && <div className="layer-menu" aria-label="Map layer visibility"><div className="layer-menu-heading"><strong>Map layers</strong><span>Context ≠ topology</span></div>
           <label><input type="checkbox" checked={basemapEnabled} disabled={!BASEMAP_STYLE_URL} onChange={(event) => changeBasemap(event.target.checked)} /><span>Worldwide vector basemap<small data-testid="basemap-status">{basemapState === "available" ? "Vector context loaded" : basemapState === "loading" ? "Connecting…" : "Graph-only fallback"}</small></span></label>

@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 const browserStyleFixture = {
   version: 8,
@@ -34,6 +34,19 @@ test.beforeEach(async ({ page }) => {
   await page.route("**/__fixtures__/terrain/**", async (route) => route.fulfill({ status: 200, contentType: "image/png", body: transparentPng }));
 });
 
+async function expectSelectedLocation(page: Page, preset: "world" | "toronto" | "welland" | "niagara-falls", coverage: "Experimental graph" | "No available graph"): Promise<void> {
+  await expect(page.getByLabel("Go to")).toHaveValue(preset);
+  await expect(page.getByTestId("graph-coverage-status")).toHaveText(coverage);
+  await expect(page.getByTestId("coverage-scope")).toHaveText("Selected location");
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-active-preset", preset);
+}
+
+async function expectNavigationSettled(page: Page, longitude: string, latitude: string): Promise<void> {
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-navigation-state", "settled");
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-center-longitude", longitude);
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-center-latitude", latitude);
+}
+
 test("loads the actual graph, computes a route, and exposes non-map evidence", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Inspect a legal graph path" })).toBeVisible();
@@ -52,21 +65,72 @@ test("loads the actual graph, computes a route, and exposes non-map evidence", a
   await expect(page.getByText("Synthetic free-flow cost")).toBeVisible();
 });
 
-test("world exploration is independent from prepared graph coverage", async ({ page }) => {
+test("Toronto to Welland changes selected coverage before the animated camera settles", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByTestId("graph-coverage-status")).toHaveText("Experimental graph");
+  await expectSelectedLocation(page, "toronto", "Experimental graph");
 
   await page.getByLabel("Go to").selectOption("welland");
-  await expect(page.getByTestId("graph-coverage-status")).toHaveText("No available graph");
+  await expectSelectedLocation(page, "welland", "No available graph");
   await expect(page.getByTestId("coverage-detail")).toContainText("no prepared routing or simulation graph");
-  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-center-longitude", "-79.2483");
+  await expectNavigationSettled(page, "-79.2483", "42.9922");
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-viewport-coverage", "none");
+});
+
+test("Welland to Niagara Falls retains no-graph coverage across camera movement", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Go to").selectOption("welland");
+  await expectNavigationSettled(page, "-79.2483", "42.9922");
 
   await page.getByLabel("Go to").selectOption("niagara-falls");
-  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-center-latitude", "43.0896");
-  await expect(page.getByTestId("graph-coverage-status")).toHaveText("No available graph");
+  await expectSelectedLocation(page, "niagara-falls", "No available graph");
+  await expectNavigationSettled(page, "-79.0849", "43.0896");
+});
 
+test("rapid Toronto, Welland, Toronto navigation cannot publish stale coverage", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Go to").selectOption("welland");
+  await expectSelectedLocation(page, "welland", "No available graph");
   await page.getByLabel("Go to").selectOption("toronto");
-  await expect(page.getByTestId("graph-coverage-status")).toHaveText("Experimental graph");
+  await expectSelectedLocation(page, "toronto", "Experimental graph");
+  await expectNavigationSettled(page, "-79.3805", "43.6482");
+});
+
+test("a newer city selection supersedes an interrupted camera animation", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Go to").selectOption("welland");
+  await page.getByLabel("Go to").selectOption("niagara-falls");
+  await expectSelectedLocation(page, "niagara-falls", "No available graph");
+  await expectNavigationSettled(page, "-79.0849", "43.0896");
+});
+
+test("reduced-motion city navigation resolves coverage and camera synchronously", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await page.getByLabel("Go to").selectOption("world");
+  await expectSelectedLocation(page, "world", "No available graph");
+  await expectNavigationSettled(page, "0.0000", "20.0000");
+});
+
+test("basemap reload during navigation preserves selected coverage and completes the camera", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Layers" }).click();
+  await page.getByLabel("Go to").selectOption("welland");
+  await expectSelectedLocation(page, "welland", "No available graph");
+  await page.getByLabel("Worldwide vector basemap").uncheck();
+  await expect(page.getByTestId("basemap-status")).toHaveText("Graph-only fallback");
+  await expectNavigationSettled(page, "-79.2483", "42.9922");
+  await expect(page.getByTestId("routing-map")).toHaveAttribute("data-overlays-ready", "true");
+});
+
+test("component cleanup invalidates pending camera navigation", async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+  await page.goto("/");
+  await page.getByLabel("Go to").selectOption("welland");
+  await expectSelectedLocation(page, "welland", "No available graph");
+  await page.goto("about:blank");
+  await expect(page.locator("body")).toBeEmpty();
+  expect(pageErrors).toEqual([]);
 });
 
 test("terrain and camera controls are optional and honor explicit user action", async ({ page }) => {

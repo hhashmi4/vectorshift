@@ -61,12 +61,21 @@ Terrain is an opt-in `raster-dem` visualization. Its source URL and attribution 
 
 Style replacement is an explicit tested lifecycle: retained graph, ordered-route, and selection view models are re-added after vector-to-blank, blank-to-vector, and failure-fallback transitions. Basemap, terrain, camera, and building state never mutate `packages/graph` or the local route service.
 
+### Selected location and viewport state
+
+The city control's selected location is authoritative immediately after a user chooses a preset. Its coverage is resolved directly from that preset's fixed WGS84 center; it never waits for an animated camera event. The viewport center, bearing, pitch, and separately labeled viewport coverage are derived rendering state. A manual pan changes the selection to `custom`, at which point selected coverage intentionally follows the viewport center.
+
+MapLibre `easeTo` emits `move` frames followed by `moveend`, but a new ease, gesture, `stop`, style lifecycle, or unmount can interrupt that sequence. `idle` additionally depends on style and source loading, so it is not an authority for geographic selection. The original worldwide foundation incorrectly stored preset, viewport, and coverage separately, updated coverage only on `moveend`, and accepted every event without identifying which navigation produced it. A delayed or interrupted event could therefore leave Toronto coverage visible after Welland had been selected.
+
+Each city navigation now receives a monotonically increasing generation and a common MapLibre `easeId`. The selected preset and its coverage update atomically before camera work starts. Camera events carry their generation; stale events cannot update state, a style reload resumes only the current target, reduced motion uses a generation-tagged synchronous jump, and cleanup invalidates the generation before stopping and removing the map. A current animation that is interrupted before reaching its target resumes in a microtask only if no user movement or newer selection has invalidated it.
+
 ## Client concurrency and interaction invariants
 
 - Every route request has an `AbortController` and monotonically increasing client generation. Only the current generation may update evidence, message, loading state, geometry, or camera.
 - Endpoint edits and clear actions abort in-flight work and remove obsolete geometry. Swap recomputes the reversed real query when evidence already exists.
 - Algorithm changes recompute immediately after a completed/in-flight query; mode changes wait for the new eligibility view before recomputing.
 - Network requests use independent abort and generation guards so an older mode response cannot replace the active mode.
+- City camera requests use independent generation guards. Selected-location coverage cannot be overwritten by delayed viewport events, while manual viewport movement has an explicitly separate `custom` state.
 - Hover uses MapLibre feature state and changes React state only when the edge identity changes; it does not rerender the graph on every pointer event.
 - Map event listeners, map workers, and in-flight requests are disposed on unmount.
 
@@ -74,4 +83,4 @@ The task rail focuses the map, opens routing evidence, or exposes layers. The in
 
 ## Failure states and verification
 
-Missing artifacts produce an explicit unavailable state. Invalid input is rejected. Unreachable paths show no geometry. Unsupported semantics return relation diagnostics. Browser tests cover the primary route workflow, swap/recompute, delayed stale-response rejection, basemap failure fallback, network failure, unsupported semantics, and automated WCAG A/AA checks. Unit tests cover snapping, geometry continuity/determinism, boundary qualification, and unsupported-path withholding. Reproducible desktop/mobile screenshots are produced by `npm run visual:web` into ignored `artifacts/phase1d`.
+Missing artifacts produce an explicit unavailable state. Invalid input is rejected. Unreachable paths show no geometry. Unsupported semantics return relation diagnostics. Browser tests cover the primary route workflow, city-to-city navigation, rapid and interrupted camera changes, reduced motion, navigation during style reload, component cleanup, swap/recompute, delayed stale-response rejection, basemap failure fallback, network failure, unsupported semantics, and automated WCAG A/AA checks. Unit tests cover coverage resolution, preset matching, snapping, geometry continuity/determinism, boundary qualification, and unsupported-path withholding. Reproducible desktop/mobile screenshots are produced by `npm run visual:web` into ignored `artifacts/phase1d`.

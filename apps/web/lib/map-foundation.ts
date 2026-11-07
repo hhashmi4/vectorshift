@@ -21,6 +21,8 @@ export const CITY_PRESETS: readonly CityPreset[] = [
   { id: "niagara-falls", label: "Niagara Falls", center: [-79.0849, 43.0896], zoom: 12.8 },
 ] as const;
 
+const CITY_PRESET_MATCH_TOLERANCE_DEGREES = 0.005;
+
 const TORONTO_REFERENCE_BOUNDS = {
   south: 43.6426,
   west: -79.3905,
@@ -35,10 +37,14 @@ const NO_GRAPH: GraphCoverage = {
   message: "Basemap exploration is available here, but VECTORSHIFT has no prepared routing or simulation graph for this view.",
 };
 
-export function graphCoverageAt(longitude: number, latitude: number): GraphCoverage {
+function validateCoordinate(longitude: number, latitude: number): void {
   if (!Number.isFinite(longitude) || !Number.isFinite(latitude) || longitude < -180 || longitude > 180 || latitude < -90 || latitude > 90) {
     throw new TypeError("Coverage coordinates must be finite WGS84 longitude and latitude values.");
   }
+}
+
+export function graphCoverageAt(longitude: number, latitude: number): GraphCoverage {
+  validateCoordinate(longitude, latitude);
 
   if (
     longitude >= TORONTO_REFERENCE_BOUNDS.west
@@ -61,4 +67,23 @@ export function cityPreset(id: CityPreset["id"]): CityPreset {
   const preset = CITY_PRESETS.find((candidate) => candidate.id === id);
   if (!preset) throw new TypeError(`Unknown city preset: ${id}`);
   return preset;
+}
+
+export function graphCoverageForPreset(id: CityPreset["id"]): GraphCoverage {
+  const preset = cityPreset(id);
+  return graphCoverageAt(preset.center[0], preset.center[1]);
+}
+
+export function cityPresetAt(longitude: number, latitude: number): CityPreset | null {
+  validateCoordinate(longitude, latitude);
+  return CITY_PRESETS.find((preset) => (
+    Math.abs(preset.center[0] - longitude) < CITY_PRESET_MATCH_TOLERANCE_DEGREES
+    && Math.abs(preset.center[1] - latitude) < CITY_PRESET_MATCH_TOLERANCE_DEGREES
+  )) ?? null;
+}
+
+export function isAtCityPreset(longitude: number, latitude: number, id: CityPreset["id"]): boolean {
+  validateCoordinate(longitude, latitude);
+  const preset = cityPreset(id);
+  return Math.abs(preset.center[0] - longitude) < 0.0001 && Math.abs(preset.center[1] - latitude) < 0.0001;
 }
